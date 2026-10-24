@@ -4,7 +4,16 @@ Every concept from `GreenMind_Inference_Optimization_Roadmap.md`, one file each,
 
 Each file has: one-sentence definition · plain-English explanation · technical depth · backend-engineer analogy · why it matters for GreenMind · common mistakes · related concepts.
 
-> Official score formulas, thresholds, and the five useful-request conditions are **not** in the source material. Files mark these as "verify in the briefing."
+## Confirmed scoring constants
+| Constant | Value | Implication |
+|---|---|---|
+| Baseline efficiency `η_base` | **0.00154 SLO-met requests/J** | ≈ 649 J per SLO-met request at baseline |
+| Energy saturation `K` | **3×** | full energy marks at η ≥ 0.00462 SLO-met req/J (≈ 216 J per request) |
+| Reference macro-accuracy | **87.2%** | retention = candidate macro-accuracy / 0.872 |
+
+Inferred (not confirmed) energy score form: `s_E = clip(ln(η / 0.00154) / ln 3, 0, 1)`. Main files: [Energy per Useful Request](121_Energy_per_Useful_Request.md), [Accuracy Retention](120_Accuracy_Retention_and_Relative_Loss.md), [Score Symbols](124_Score_Symbols_A_sE_sT_sL_S.md).
+
+> Still unknown: the retention cutoff, the formula for the accuracy factor `A`, the throughput and latency score formulas, component weights, TTFT/TPOT limits, the five useful-request conditions, and the pitch weights. Files mark these as "verify in the briefing."
 
 ## Orientation
 1. [Inferencing](1_Inferencing.md)

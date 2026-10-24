@@ -12,7 +12,8 @@ GPUs are less efficient at their highest clocks: the last 10–20% of performanc
 - Query: `nvidia-smi -q -d POWER,CLOCK`.
 - Set power limit (needs admin): `sudo nvidia-smi -pl 250` (watts, within min/max limits).
 - Lock clocks: `sudo nvidia-smi -lgc <min>,<max>` (graphics), reset with `-rgc`. Memory clocks on A100 HBM are generally fixed.
-- Energy trade-off: `E = P × T`. If a cap lowers P by 20% and raises T by 5% → E drops ~16%. If T rises 30% → E rises.
+- Energy trade-off: `E = P × T`. If a cap lowers P by 20% and raises T by 5%, E drops ~16%. If T rises 30%, E rises.
+- Score impact: a 16% energy cut with unchanged SLO-met requests raises η by about 19% (`1/0.84`), worth about 0.16 of `s_E` (`ln 1.19 / ln 3`). That only pays off while η is below the saturation point of 0.00462 SLO-met requests/J, and only if no extra requests miss their SLOs.
 - Risks: TPOT/TTFT SLO violations, lower peak throughput → more queueing at peak → fewer useful requests.
 - **Permission:** likely restricted or impossible in the evaluation environment — check the rules.
 

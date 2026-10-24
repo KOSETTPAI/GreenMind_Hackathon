@@ -12,6 +12,12 @@ During a hackathon you'll run dozens of experiments. Without a log, you'll forge
 **Columns (from the roadmap):**
 ID · date · code commit · model hash · engine version · config diff · hypothesis · workload · repetitions · accuracy · accuracy retention · TTFT/p95 · TPOT · throughput · SLO pass rate · GPU joules · joules/useful request · score components · final score · failure notes · decision.
 
+**Columns derived from the confirmed scoring constants:**
+- `macro_acc`, `retention = macro_acc / 0.872`
+- `SLO_met`, `E_J`, `η = SLO_met / E_J`, `η / 0.00154`
+- `s_E = clip(ln(η / 0.00154) / ln 3, 0, 1)` (inferred form; flag it as such until you confirm it)
+- `energy_saturated = η ≥ 0.00462`
+
 **Tips:**
 - Store as CSV/Markdown/spreadsheet in git; link to raw log folders.
 - Write the hypothesis *before* running ("Raising max_num_batched_tokens to 8192 will lower TTFT p95 for RAG without hurting TPOT").

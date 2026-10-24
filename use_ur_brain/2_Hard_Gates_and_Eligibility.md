@@ -23,7 +23,7 @@ A 2× speedup is worthless if it drops accuracy below the cutoff.
 A gate is like a contract SLA with a penalty clause or a CI check that blocks merge: "p95 < 2 s" in a contract isn't a gradient, it's a breach/no-breach line.
 
 ## Why it matters for GreenMind
-The roadmap explicitly notes that "five conditions for useful work" and an accuracy-retention cutoff exist in the briefing. Those are almost certainly gates. Your tuning must keep a safety margin from every gate, because run-to-run noise can push you over the edge.
+The roadmap explicitly notes that "five conditions for useful work" and an accuracy-retention cutoff exist in the briefing. Those are almost certainly gates. **Confirmed so far:** retention is measured against a reference macro-accuracy of **87.2%**, and only **SLO-met** requests count toward energy efficiency. The retention cutoff value and the five conditions themselves are still unknown. Your tuning must keep a safety margin from every gate, because run-to-run noise can push you over the edge.
 
 ## Common mistakes
 - Assuming a late or failed request still earns partial credit.
