@@ -1,4 +1,4 @@
-# final-run8: budget 8192 + FlashInfer + Hybrid Prefix Caching (align) + mem 0.92
+# final-run8: budget 4096 + FlashInfer + Hybrid Prefix Caching (align) + mem 0.92 + 300W
 # Weights: AWQ W4A16. Autoregressive decode, MTP draft off.
 # Context: 40960 to support 32K prompts + 8192 output tokens.
 CMKL/MANGO1.5-Qwen3.5-9B-AWQ-W4A16-mtp
@@ -8,7 +8,7 @@ CMKL/MANGO1.5-Qwen3.5-9B-AWQ-W4A16-mtp
 --trust-remote-code
 --gpu-memory-utilization 0.92
 --max-model-len 40960
---max-num-batched-tokens 8192
+--max-num-batched-tokens 4096
 --attention-backend FLASHINFER
 --enable-prefix-caching
 --mamba-cache-mode align
