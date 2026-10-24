@@ -48,22 +48,24 @@ port to localhost by default. The grader health check already passed on that
 bind, so leave it. An existing container named `mango-vllm` must be removed
 on the VM first (`docker rm -f mango-vllm`); the script will not replace it.
 
-Defaults match the scored server. Set only the variable for the current step:
+Defaults match the scored server. `scripts/start-vllm.sh` reads `MAX_MODEL_LEN` (default `32768`), `GPU_MEMORY_UTILIZATION` (default `0.85`), and the identity variables `MODEL_ID`, `SERVED_MODEL_NAME`, `VLLM_IMAGE`, `PORT`, and `CONTAINER_NAME`.
 
-- `MAX_MODEL_LEN` (default `32768`)
-- `GPU_MEMORY_UTILIZATION` (default `0.85`)
-- `MAX_NUM_SEQS` (unset, so vLLM's default)
-- `MAX_NUM_BATCHED_TOKENS` (unset)
-- `ENABLE_CHUNKED_PREFILL` (`1` to pass the flag)
-- `SPECULATIVE_CONFIG` (unset; a JSON object turns MTP on)
-- `PREFIX_CACHING` (`1` adds prefix caching and `--mamba-cache-mode align`)
+It does not read `MAX_NUM_SEQS`, `MAX_NUM_BATCHED_TOKENS`, `ENABLE_CHUNKED_PREFILL`, `SPECULATIVE_CONFIG`, or `PREFIX_CACHING`. Exporting those variables does not change the scored server.
 
-Example for the first change only:
+Later one-flag experiments are the scripts in `experiments/`. The first context-length change is the same server either way:
 
 ```bash
 docker rm -f mango-vllm
 MAX_MODEL_LEN=40960 ./scripts/start-vllm.sh
 ```
+
+```bash
+unset MAX_MODEL_LEN GPU_MEMORY_UTILIZATION
+docker rm -f mango-vllm
+bash experiments/01-max-model-len/start.sh
+```
+
+Follow `experiments/vm-sequence.md` after that. Each experiment script adds one flag to the V0 command. An existing `mango-vllm` container is left in place until you remove it.
 
 Confirm a new flag with `vllm serve --help` inside the image before a graded run. Nightly flag names can differ.
 
@@ -79,18 +81,18 @@ Inspect container logs:
 
 Run API tests on the VM after the model is loaded, and before Submit:
 
-    ./scripts/test-chat.sh
-    ./scripts/test-stream.sh
-    ./scripts/test-tool-calling.sh
-    ./scripts/test-thinking.sh
+    bash scripts/test-chat.sh
+    bash scripts/test-stream.sh
+    bash scripts/test-tool-calling.sh
+    bash experiments/10-warmup/warmup.sh
 
-`test-chat.sh` and `test-stream.sh` send `enable_thinking: false`. The grader turns thinking on. `test-thinking.sh` is the graded-path check: a streaming request with thinking enabled. If it fails, or if tool calls fail, do not submit. After a server started with `PREFIX_CACHING=1`, also run `./scripts/test-prefix-cache.sh` and submit only when it exits 0.
+`test-chat.sh` and `test-stream.sh` send `enable_thinking: false`. The grader turns thinking on. `experiments/10-warmup/warmup.sh` is the graded-path check: streaming requests with thinking enabled, including a tool call. If it fails, or if tool calls fail, do not submit. After the prefix-caching experiment, also run `bash experiments/04-prefix-caching/check-hits.sh` and submit only when it exits 0.
 
 For a remote endpoint, set BASE_URL explicitly, for example:
 
     BASE_URL=http://YOUR_VM_HOST:8000/v1 ./scripts/test-chat.sh
 
-Before clicking Submit, start `./scripts/watch-run.sh`. It records `nvidia-smi dmon` and snapshots of `http://127.0.0.1:8000/metrics`. Stop it when the grader finishes. Keep `docker logs` as well. A host power cap, when a later step calls for one, is `sudo ./scripts/set-power-cap.sh WATTS` on the VM, not inside the container.
+Before clicking Submit, start `bash experiments/watch-run.sh`. It records `nvidia-smi dmon` and snapshots of `http://127.0.0.1:8000/metrics`. Stop it when the grader finishes. Keep `docker logs` as well. A host power cap, when a later step calls for one, is documented in `experiments/07-power-cap/README.md`. Run that on the VM host, not inside the container.
 
 ## Initial smoke-test results
 
