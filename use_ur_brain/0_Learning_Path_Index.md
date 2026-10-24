@@ -1,0 +1,160 @@
+# use_ur_brain — Learning Path Index
+
+Every concept from `GreenMind_Inference_Optimization_Roadmap.md`, one file each, numbered in learning order (following the roadmap's dependency map: grader → model/token basics → GPU/precision → serving → hybrid architecture → baseline harness → low-risk tuning → quantization/decoding/engines → score-aware validation → pitch).
+
+Each file has: one-sentence definition · plain-English explanation · technical depth · backend-engineer analogy · why it matters for GreenMind · common mistakes · related concepts.
+
+> Official score formulas, thresholds, and the five useful-request conditions are **not** in the source material. Files mark these as "verify in the briefing."
+
+## Orientation
+1. [Inferencing](1_Inferencing.md)
+
+## Stage 0 — The evaluator and constraints
+2. [Hard Gates and Eligibility](2_Hard_Gates_and_Eligibility.md)
+3. [Continuous Score Components](3_Continuous_Score_Components.md)
+4. [Baseline](4_Baseline.md)
+5. [Validation vs Final Submission](5_Validation_vs_Final_Submission.md)
+6. [Workload Mix](6_Workload_Mix.md)
+7. [Measurement Window](7_Measurement_Window.md)
+8. [Energy Boundary](8_Energy_Boundary.md)
+9. [Allowed Artifacts, Dependencies, and Network Rules](9_Allowed_Artifacts_Dependencies_and_Network_Rules.md)
+10. [Deterministic Settings](10_Deterministic_Settings.md)
+11. [SLO](11_SLO.md)
+12. [Useful Requests](12_Useful_Requests.md)
+
+## Stage 1 — ML and LLM fundamentals
+13. [Parameters and Weights](13_Parameters_and_Weights.md)
+14. [Checkpoint](14_Checkpoint.md)
+15. [Tokens and Tokenizer](15_Tokens_and_Tokenizer.md)
+16. [Token IDs and Vocabulary](16_Token_IDs_and_Vocabulary.md)
+17. [Embeddings and Hidden States](17_Embeddings_and_Hidden_States.md)
+18. [Attention](18_Attention.md)
+19. [Feed-Forward Network (MLP)](19_Feed_Forward_Network_MLP.md)
+20. [Normalization](20_Normalization.md)
+21. [Residual Connections](21_Residual_Connections.md)
+22. [Logits](22_Logits.md)
+23. [Softmax](23_Softmax.md)
+24. [Sampling (Temperature, Top-k, Top-p)](24_Sampling_Temperature_TopK_TopP.md)
+25. [Autoregressive Generation](25_Autoregressive_Generation.md)
+26. [Context Window](26_Context_Window.md)
+27. [Prompt and Completion Tokens](27_Prompt_and_Completion_Tokens.md)
+28. [Chat Templates](28_Chat_Templates.md)
+
+## Stage 2 — GPU, numerical formats, and energy
+29. [GPU Fundamentals](29_GPU_Fundamentals.md)
+30. [CUDA](30_CUDA.md)
+31. [Streaming Multiprocessor (SM)](31_Streaming_Multiprocessor_SM.md)
+32. [CUDA Cores and Tensor Cores](32_CUDA_Cores_and_Tensor_Cores.md)
+33. [VRAM and HBM](33_VRAM_and_HBM.md)
+34. [Memory Bandwidth](34_Memory_Bandwidth.md)
+35. [GPU Memory Hierarchy](35_GPU_Memory_Hierarchy_Cache_Registers_Shared_Memory.md)
+36. [Kernels](36_Kernels.md)
+37. [FLOPs, FLOPS, and TOPS](37_FLOPs_FLOPS_and_TOPS.md)
+38. [Arithmetic Intensity](38_Arithmetic_Intensity.md)
+39. [Compute-Bound vs Memory-Bound](39_Compute_Bound_vs_Memory_Bound.md)
+40. [Occupancy](40_Occupancy.md)
+41. [Launch Overhead](41_Launch_Overhead.md)
+42. [Host System (CPU, RAM, Storage, Network)](42_Host_System_CPU_RAM_Storage_Network.md)
+43. [NVIDIA A100](43_NVIDIA_A100.md)
+44. [Numerical Precision Basics](44_Numerical_Precision_Basics.md)
+45. [FP32](45_FP32.md)
+46. [BF16](46_BF16.md)
+47. [FP16](47_FP16.md)
+48. [FP8](48_FP8.md)
+49. [INT8 and INT4](49_INT8_and_INT4.md)
+50. [Watts vs Joules](50_Watts_vs_Joules.md)
+51. [Energy Measurement and Telemetry](51_Energy_Measurement_and_Telemetry.md)
+
+## Stage 3 — Inference serving and request behavior
+52. [Model Loading and Warmup](52_Model_Loading_and_Warmup.md)
+53. [Prefill](53_Prefill.md)
+54. [Decode](54_Decode.md)
+55. [Batching](55_Batching.md)
+56. [Continuous Batching](56_Continuous_Batching.md)
+57. [Scheduler and Request Queue](57_Scheduler_and_Request_Queue.md)
+58. [Concurrency](58_Concurrency.md)
+59. [Backpressure](59_Backpressure.md)
+60. [Streaming and SSE](60_Streaming_and_SSE.md)
+61. [End-to-End Latency](61_Latency_End_to_End.md)
+62. [TTFT](62_TTFT.md)
+63. [TPOT](63_TPOT.md)
+64. [ITL](64_ITL.md)
+65. [Percentiles (p50/p95/p99)](65_Percentiles_p50_p95_p99.md)
+66. [Throughput](66_Throughput.md)
+67. [Queueing](67_Queueing.md)
+68. [Arrival Rate and Load Phases](68_Arrival_Rate_and_Load_Phases.md)
+69. [Open-Loop vs Closed-Loop Load](69_Open_Loop_vs_Closed_Loop_Load.md)
+70. [Coordinated Omission](70_Coordinated_Omission.md)
+71. [Cancellation and Timeouts](71_Cancellation_and_Timeouts.md)
+72. [OpenAI-Compatible API](72_OpenAI_Compatible_API.md)
+73. [Tool Calling](73_Tool_Calling.md)
+74. [Agentic Workloads and Multi-Turn](74_Agentic_Workloads_and_Multi_Turn.md)
+75. [RAG](75_RAG.md)
+76. [Usage Accounting](76_Usage_Accounting.md)
+
+## Stage 4 — Hybrid Mamba / Gated-DeltaNet architecture
+77. [KV Cache](77_KV_Cache.md)
+78. [State-Space Models (SSM)](78_State_Space_Models_SSM.md)
+79. [Recurrent State](79_Recurrent_State.md)
+80. [Mamba (Selective State Update)](80_Mamba_Selective_State_Update.md)
+81. [Linear Attention](81_Linear_Attention.md)
+82. [Delta Rule](82_Delta_Rule.md)
+83. [Gating](83_Gating.md)
+84. [Gated DeltaNet](84_Gated_DeltaNet.md)
+85. [Hybrid Model Architecture](85_Hybrid_Model_Architecture.md)
+86. [Hybrid Cache and Architecture-Specific Kernels](86_Hybrid_Cache_and_Architecture_Specific_Kernels.md)
+
+## Stage 5 — Baseline and measurement harness
+87. [Reproducibility](87_Reproducibility.md)
+88. [Smoke Testing](88_Smoke_Testing.md)
+89. [Measurement Harness](89_Measurement_Harness.md)
+90. [Experiment Log](90_Experiment_Log.md)
+91. [Run-to-Run Variance](91_Run_to_Run_Variance.md)
+92. [Profiling](92_Profiling.md)
+
+## Stage 6 — Low-risk serving optimizations
+93. [Batch Token Budget](93_Batch_Token_Budget.md)
+94. [Max Active Sequences](94_Max_Active_Sequences.md)
+95. [Chunked Prefill](95_Chunked_Prefill.md)
+96. [Prefix Caching](96_Prefix_Caching.md)
+97. [Preemption](97_Preemption.md)
+98. [Scheduling Policy](98_Scheduling_Policy.md)
+99. [CPU and API Worker Capacity](99_CPU_and_API_Worker_Capacity.md)
+100. [CUDA Graphs and Compilation](100_CUDA_Graphs_and_Compilation.md)
+101. [GPU Memory Allocation](101_GPU_Memory_Allocation.md)
+
+## Stage 7 — Precision, quantization, and model artifacts
+102. [Quantization](102_Quantization.md)
+103. [Weight-Only Quantization (W4A16)](103_Weight_Only_Quantization_W4A16.md)
+104. [Calibration](104_Calibration.md)
+105. [AWQ](105_AWQ.md)
+106. [Pruning](106_Pruning.md)
+107. [Weight Conversion](107_Weight_Conversion.md)
+108. [Fine-Tuning and Distillation](108_Fine_Tuning_and_Distillation.md)
+
+## Stage 8 — Kernels, speculative decoding, engine alternatives
+109. [Kernel Fusion](109_Kernel_Fusion.md)
+110. [FlashAttention](110_FlashAttention.md)
+111. [Speculative Decoding](111_Speculative_Decoding.md)
+112. [MTP (Multi-Token Prediction)](112_MTP_Multi_Token_Prediction.md)
+113. [vLLM](113_vLLM.md)
+114. [SGLang](114_SGLang.md)
+115. [TensorRT-LLM](115_TensorRT_LLM.md)
+116. [llama.cpp](116_llama_cpp.md)
+117. [Engine Migration Gate](117_Engine_Migration_Gate.md)
+
+## Stage 9 — Metrics, energy, and score-aware decisions
+118. [Accuracy](118_Accuracy.md)
+119. [Per-Class and Macro Accuracy](119_Per_Class_and_Macro_Accuracy.md)
+120. [Accuracy Retention and Relative Loss](120_Accuracy_Retention_and_Relative_Loss.md)
+121. [Energy per Useful Request](121_Energy_per_Useful_Request.md)
+122. [GPU Power Caps and Clocks](122_GPU_Power_Caps_and_Clocks.md)
+123. [Clipping and Saturation](123_Clipping_and_Saturation.md)
+124. [Score Symbols: A, s_E, s_T, s_L, S](124_Score_Symbols_A_sE_sT_sL_S.md)
+125. [Score-Aware Decisions](125_Score_Aware_Decisions.md)
+
+## Stage 10 — Diagnosis, validation, submission, pitch
+126. [Bottleneck Diagnosis](126_Bottleneck_Diagnosis.md)
+127. [Controlled Experiments](127_Controlled_Experiments.md)
+128. [Submission Discipline](128_Submission_Discipline.md)
+129. [Final Pitch](129_Final_Pitch.md)
