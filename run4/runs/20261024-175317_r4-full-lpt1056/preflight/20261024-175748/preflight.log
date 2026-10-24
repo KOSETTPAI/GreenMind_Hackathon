@@ -1,0 +1,84 @@
+==========================================
+ GreenMind Hackathon: PRE-FLIGHT CHECK
+==========================================
+Time:      2026-10-24T17:57:48+07:00
+Host:      gm17
+Repo:      /home/researcher/GreenMind_Hackathon
+Container: mango-vllm
+Model ID:  mango1.5-awq-w4a16
+Endpoint:  http://127.0.0.1:8000/v1
+Profile:   /home/researcher/GreenMind_Hackathon/run4/profiles/r4-full-lpt1056.args (max-model-len 40960; PROFILE environment variable)
+Bind:      expected 0.0.0.0:8000 (EXPECTED_BIND environment variable)
+Records:   /home/researcher/greenmind-runs/20261024-175317_r4-full-lpt1056/preflight/20261024-175748
+
+[PASS] Git repository: 6460c16
+[WARN] Working tree has uncommitted changes; record them with the run
+[PASS] Command available: docker
+[PASS] Command available: python3
+[PASS] Docker daemon reachable
+[PASS] Container is running (started 2026-10-24T10:53:21.707576943Z)
+[PASS] No other container publishes host port 8000
+  published 0.0.0.0:8000 -> container 8000/tcp
+  listening on all interfaces: restrict inbound access to trusted clients
+[WARN] Port binding (expected 0.0.0.0:8000 -> 8000/tcp) (see details above)
+[INFO] Entrypoint: ["vllm","serve"]
+[INFO] Command:    ["CMKL/MANGO1.5-Qwen3.5-9B-AWQ-W4A16-mtp","--host","0.0.0.0","--port","8000","--served-model-name","mango1.5-awq-w4a16","--trust-remote-code","--gpu-memory-utilization","0.90","--max-model-len","40960","--enable-auto-tool-choice","--tool-call-parser","qwen3_coder","--reasoning-parser","qwen3","--speculative-config","{\"method\":\"mtp\",\"num_speculative_tokens\":1}","--enable-prefix-caching","--mamba-cache-mode","align","--long-prefill-token-threshold","1056"]
+  container model: CMKL/MANGO1.5-Qwen3.5-9B-AWQ-W4A16-mtp
+  container --max-model-len: 40960
+  container --served-model-name: mango1.5-awq-w4a16
+[PASS] Container arguments (profile r4-full-lpt1056.args)
+[INFO] Image: vllm/vllm-openai:nightly (sha256:cb12c3016938a4ee98ed176ac833984089460689a0982cff4b5a60bb45b3cded)
+[INFO] GPU compute processes: 1
+       30047, VLLM::EngineCore, 35544 MiB
+[INFO] GPU power limit: 400.00 W
+  HTTP 200, model ids: ['mango1.5-awq-w4a16']
+  served max_model_len: 40960
+  served checkpoint: CMKL/MANGO1.5-Qwen3.5-9B-AWQ-W4A16-mtp
+[PASS] GET /models serves mango1.5-awq-w4a16 with context 40960
+  HTTP 200, reply: 'PREFLIGHT_OK'
+[PASS] Chat completion returns PREFLIGHT_OK
+  chunks=8 finish=stop done=True ttft=0.081s prompt_tokens=24 completion_tokens=10 content_chars=9 reasoning_chars=0
+[PASS] Streaming response with usage and [DONE]
+  chunks=8 finish=tool_calls done=True ttft=0.116s prompt_tokens=284 completion_tokens=27 content_chars=0 reasoning_chars=0
+  tool call: get_weather({"city": "Bangkok"})
+[PASS] Streaming tool call parses (get_weather, JSON arguments)
+  chunks=74 finish=stop done=True ttft=0.072s prompt_tokens=21 completion_tokens=136 content_chars=3 reasoning_chars=415
+  idle-server TTFT 0.072s vs SLO 0.505s (informational)
+[PASS] Streaming with thinking enabled
+[INFO] Saved inspect.json and container-tail.log in /home/researcher/greenmind-runs/20261024-175317_r4-full-lpt1056/preflight/20261024-175748
+
+--- Recent container logs (last 30 lines) ---
+(APIServer pid=1) INFO 10-24 10:57:39 [launcher.py:197] Route: /v1/chat/completions, Methods: POST
+(APIServer pid=1) INFO 10-24 10:57:39 [launcher.py:197] Route: /v1/chat/completions/batch, Methods: POST
+(APIServer pid=1) INFO 10-24 10:57:39 [launcher.py:197] Route: /v1/responses, Methods: POST
+(APIServer pid=1) INFO 10-24 10:57:39 [launcher.py:197] Route: /v1/responses/{response_id}, Methods: GET
+(APIServer pid=1) INFO 10-24 10:57:39 [launcher.py:197] Route: /v1/responses/{response_id}/cancel, Methods: POST
+(APIServer pid=1) INFO 10-24 10:57:39 [launcher.py:197] Route: /v1/completions, Methods: POST
+(APIServer pid=1) INFO 10-24 10:57:39 [launcher.py:197] Route: /v1/messages, Methods: POST
+(APIServer pid=1) INFO 10-24 10:57:39 [launcher.py:197] Route: /v1/messages/count_tokens, Methods: POST
+(APIServer pid=1) INFO 10-24 10:57:39 [launcher.py:197] Route: /generative_scoring, Methods: POST
+(APIServer pid=1) INFO 10-24 10:57:39 [launcher.py:197] Route: /scale_elastic_ep, Methods: POST
+(APIServer pid=1) INFO 10-24 10:57:39 [launcher.py:197] Route: /is_scaling_elastic_ep, Methods: POST
+(APIServer pid=1) INFO 10-24 10:57:39 [launcher.py:197] Route: /v1/chat/completions/render, Methods: POST
+(APIServer pid=1) INFO 10-24 10:57:39 [launcher.py:197] Route: /v1/messages/render, Methods: POST
+(APIServer pid=1) INFO 10-24 10:57:39 [launcher.py:197] Route: /v1/completions/render, Methods: POST
+(APIServer pid=1) INFO 10-24 10:57:39 [launcher.py:197] Route: /v1/responses/render, Methods: POST
+(APIServer pid=1) INFO 10-24 10:57:39 [launcher.py:197] Route: /v1/chat/completions/derender, Methods: POST
+(APIServer pid=1) INFO 10-24 10:57:39 [launcher.py:197] Route: /v1/completions/derender, Methods: POST
+(APIServer pid=1) INFO 10-24 10:57:39 [launcher.py:197] Route: /inference/v1/generate, Methods: POST
+(APIServer pid=1) INFO 10-24 10:57:39 [launcher.py:197] Route: /inference/v1/abort_requests, Methods: POST
+INFO:     Started server process [1]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     172.28.0.1:60286 - "GET /v1/models HTTP/1.1" 200 OK
+INFO:     172.28.0.1:59072 - "GET /v1/models HTTP/1.1" 200 OK
+INFO:     172.28.0.1:59074 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO:     172.28.0.1:59082 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO:     172.28.0.1:59088 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+(APIServer pid=1) INFO 10-24 10:57:49 [loggers.py:335] Engine 000: Avg prompt throughput: 26.5 tokens/s, Avg generation throughput: 3.4 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 0.0%
+(APIServer pid=1) INFO 10-24 10:57:49 [metrics.py:120] SpecDecoding metrics: Mean acceptance length: 2.00, Accepted throughput: 1.62 tokens/s, Drafted throughput: 1.62 tokens/s, Accepted: 20 tokens, Drafted: 20 tokens, Per-position acceptance rate: 1.000, Avg Draft acceptance rate: 100.0%
+INFO:     172.28.0.1:59090 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+
+RESULT: PREFLIGHT PASSED (2 warning(s))
+Local checks passed. Reachability from outside the VM is NOT verified by this script.
+Run run4/check-external.ps1 from a machine outside the VM.

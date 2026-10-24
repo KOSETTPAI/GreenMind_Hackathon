@@ -1,7 +1,8 @@
 # GreenMind LLM Inference Optimization Hackathon
+
 ## Complete concept roadmap, competition playbook, scoring reference, and glossary
 
-**Audience:** Backend engineer learning ML systems and GPU inference from first principles.  
+**Audience:** Backend engineer learning ML systems and GPU inference from first principles.\
 **Purpose:** Learn to optimize, measure, evaluate, and explain a local inference server for the organizer-provided MANGO1.5-Qwen3.5-9B model.
 
 > **Source-of-truth warning.** The material supplied for this task describes the hackathon and its environment, but does **not** include the full organizer briefing with the exact scoring equations, numeric thresholds, five useful-request conditions, or pitch-round weights. Therefore, this document distinguishes stated event context from general technical knowledge and hypotheses. It deliberately does not invent official score formulas or thresholds. Fill in the marked items from the actual briefing before tuning against the grader.
@@ -61,6 +62,7 @@ These details should be verified against the actual briefing and the supplied mo
 **Concept checklist:** parameters; weights; checkpoint; tokenizer; token IDs; vocabulary; embeddings; logits; softmax; sampling; autoregressive generation; context window; prompt and completion tokens; normalization; attention; feed-forward network; residual connections; inference versus training.
 
 **Plain-English explanations:**
+
 - A **token** is a unit the model processes: often a word fragment, punctuation, or byte-related unit—not necessarily a word.
 - A **tokenizer** maps text to token IDs and maps generated IDs back to text. Different tokenizers can make the same text a different number of tokens.
 - **Weights/parameters** are learned numbers stored in the checkpoint. A 9B-parameter model has roughly nine billion learned scalar parameters, though actual memory use also includes non-weight state and runtime overhead.
@@ -91,6 +93,7 @@ These details should be verified against the actual briefing and the supplied mo
 **Concept checklist:** GPU; SM (streaming multiprocessor); CUDA core; Tensor Core; VRAM/HBM; memory bandwidth; cache; register/shared memory; kernel; FLOP/FLOPS; TOPS; arithmetic intensity; compute-bound; memory-bound; occupancy; launch overhead; CPU/RAM/storage/network; watts; joules; energy measurement.
 
 **Plain-English explanations:**
+
 - GPU compute is many parallel execution units running kernels. Tensor Cores accelerate supported matrix operations and data formats.
 - VRAM is capacity; bandwidth is how quickly data can be moved. A model can fit in memory but still be slow because weights or cache must be moved repeatedly.
 - A **FLOP** is a floating-point operation; **FLOPS** is a rate. These peak rates are not application throughput guarantees.
@@ -100,6 +103,7 @@ These details should be verified against the actual briefing and the supplied mo
 **Hardware anchor:** NVIDIA's A100 Ampere family supports Tensor Core operations including BF16, FP16, TF32, INT8, and INT4; the 40 GB A100 variant is commonly specified with about 1.555 TB/s HBM bandwidth. Exact peak throughput and power limits vary by PCIe/SXM SKU and system configuration; check the actual device with `nvidia-smi` and the installed environment. Official A100 datasheet and architecture resources are listed below.
 
 **Numerical formats:**
+
 - **FP32:** higher precision and larger storage; often not the best inference default.
 - **BF16:** 16-bit format with FP32-like exponent range and fewer mantissa bits; often robust for model inference.
 - **FP16:** 16-bit floating point with a narrower exponent range than BF16.
@@ -129,6 +133,7 @@ These details should be verified against the actual briefing and the supplied mo
 **Caching:** A Transformer commonly caches key/value tensors for prior tokens to avoid recomputing them on every decode step. A hybrid Mamba/Gated-DeltaNet model may have a mixture of attention KV cache and recurrent/convolutional state. Do not assume all layers use the same cache layout. Verify how the actual model and vLLM version implement hybrid state management.
 
 **Metrics:**
+
 - **TTFT** (time to first token) = first output-token time minus request arrival time, subject to the grader's exact start/end event definitions.
 - **TPOT** (time per output token) often means `(completion latency − TTFT)/(output tokens − 1)` or a related convention. Verify the evaluator's formula, especially for one-token outputs.
 - **ITL** (inter-token latency) is the time between successive generated tokens.
@@ -177,6 +182,7 @@ These details should be verified against the actual briefing and the supplied mo
 **Baseline checklist:** exact model/checkpoint; exact tokenizer and chat template; engine and library versions; launch command; dtype; GPU model and driver; environment variables; seed/sampling settings; max context/output limits; endpoint semantics; tool calling; streaming; warmup; load schedule; telemetry source; test dataset/version; scoring script version.
 
 **Protocol:**
+
 1. Read all rules and record unknowns.
 2. Launch the unmodified reference configuration (the prompt identifies BF16/vLLM as a baseline to establish; verify the briefing says this).
 3. Wait for load and warmup to complete. Separate cold-start and steady-state metrics if relevant.
@@ -212,6 +218,7 @@ Official vLLM tuning documentation explains these trade-offs and notes that pree
 **Priority:** BF16/FP16 must know; quantization should know; pruning/fine-tuning advanced and rule-dependent. **Prerequisites:** Stages 1, 2, and 5.
 
 **Precision/quantization concepts:**
+
 - **BF16/FP16:** 16-bit floating-point choices. BF16 has a wider exponent range; actual speed is determined by supported kernels and workload.
 - **FP8:** 8-bit floating point; scaling, calibration, layer coverage, and engine support determine practical results.
 - **INT8/INT4:** quantized integer weights/activations; lower storage can reduce bandwidth and memory needs, but dequantization and kernel choices matter.
@@ -241,6 +248,7 @@ Official vLLM tuning documentation explains these trade-offs and notes that pree
 **Kernel/attention optimization:** Fused operations reduce launch and intermediate-memory overhead. FlashAttention-style algorithms reduce memory traffic for attention; they do not automatically optimize recurrent Mamba/DeltaNet layers. Custom kernels require correctness tests and often extensive hardware-specific work.
 
 **Engine alternatives:**
+
 - **vLLM:** strong focus on high-throughput serving and continuous batching; best starting point if it is the official baseline and supports the model.
 - **SGLang:** serving runtime with request/radix/prefix caching and structured generation features; verify hybrid architecture and API compatibility.
 - **TensorRT-LLM:** NVIDIA-oriented optimized inference stack; can offer strong performance but conversion/build effort and model support are key risks.
@@ -253,6 +261,7 @@ Official vLLM tuning documentation explains these trade-offs and notes that pree
 **Priority:** Must know energy measurement; advanced power tuning. **Prerequisites:** Stages 0, 2, and 5.
 
 **Core distinctions:**
+
 - Watts = instantaneous rate of energy consumption.
 - Joules = energy accumulated over a time interval.
 - Joules/request = energy divided by the specified request count; if only successful/on-time requests count, the denominator must follow the briefing.
@@ -281,7 +290,7 @@ Official vLLM tuning documentation explains these trade-offs and notes that pree
 The supplied prompt names the metrics and says the briefing contains a logarithmic energy score, baseline, clipping, saturation, component scores, final technical score, five conditions for useful work, and weighted pitch ranking. It does **not** provide their exact equations or numeric values. The formulas below are general metric definitions only; they are not substitutes for the official score sheet.
 
 | Metric / term | General definition | Example / interpretation | What to verify in briefing |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Accuracy | Fraction of evaluated items judged correct under the evaluator's rule | 90 correct of 100 = 90% | Exact judge, dataset, normalization, category weighting |
 | Per-class accuracy | Accuracy computed separately for each class/category | Thai 80%, coding 92% | Which categories/classes and whether macro averaging applies |
 | Macro-accuracy | Unweighted mean of class accuracies: `(1/K) Σ accuracy_k` | Class scores 80%, 90% → 85% | Exact class definitions and treatment of missing classes |
@@ -320,7 +329,7 @@ The supplied prompt names the metrics and says the briefing contains a logarithm
 Suppose two candidate runs process the same nominal 1,000-request workload. These numbers are invented solely to demonstrate the trade-off.
 
 | Metric | Candidate X | Candidate Y |
-|---|---:|---:|
+| --- | --- | --- |
 | Wall time | 80 s | 65 s |
 | GPU energy | 20 kJ | 22 kJ |
 | Useful/on-time requests | 980 | 900 |
@@ -342,26 +351,37 @@ Do not assume the distinction for any particular event metric until you read the
 ### Phase A — Inventory and baseline
 
 - [ ] Obtain the complete organizer briefing and write down every exact formula and threshold.
+
 - [ ] Record model artifact, config, tokenizer, engine, CUDA/driver/PyTorch versions, GPU SKU, and launch command.
+
 - [ ] Establish the BF16/vLLM reference run if that is the official baseline.
+
 - [ ] Verify API compatibility: chat, streaming, tool calls, stop conditions, errors, usage fields, and request cancellation.
+
 - [ ] Run smoke tests across chat, RAG-like long prompts, agent/tool calls, reasoning/coding, Thai, and long context.
+
 - [ ] Save outputs and telemetry; run validation repeatedly to estimate noise.
 
 ### Phase B — Diagnose before optimizing
 
 - [ ] Is the GPU saturated during prefill and decode?
+
 - [ ] Is the workload dominated by long input, long output, or concurrency?
+
 - [ ] Are TTFT and TPOT both bad, or only one?
+
 - [ ] Are cache preemptions, out-of-memory errors, or queue growth present?
+
 - [ ] Is CPU tokenization/template rendering/streaming a bottleneck?
+
 - [ ] Does power rise while useful throughput remains flat?
+
 - [ ] Does the same config behave differently across languages or request categories?
 
 ### Phase C — High-value experiment queue
 
 | Order | Hypothesis / experiment | Potential benefit | Main risk | Measure |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | 1 | Reproduce baseline across multiple runs | Establish noise floor and valid comparison | Time cost | All official metrics, variance |
 | 2 | Tune `max_num_batched_tokens` / chunked prefill | Improve prefill/decode balance | TTFT/TPOT trade-off | TTFT, TPOT, p95, throughput, energy |
 | 3 | Tune max concurrent sequences / cache allocation | Improve utilization or reduce preemption | OOM, queueing, tail latency | Cache use, preemptions, SLO pass rate |
@@ -377,21 +397,21 @@ These are hypotheses, not promised wins. Do not move to a riskier experiment bef
 
 ### Phase D — Controlled experiment rules
 
-1. One independent change per experiment; record every config diff.
-2. Use the same workload, arrival schedule, random seeds where applicable, warmup, measurement window, and hardware state.
-3. Repeat runs; compare medians and spread, not a single lucky result.
-4. Keep raw per-request records, not just aggregates.
-5. Evaluate correctness and API semantics before comparing speed.
-6. Keep category-level metrics so an aggregate does not hide Thai/coding/tool-call regression.
-7. Use the actual official scoring formula to rank candidates.
-8. Maintain a rollback path and a frozen “best-known” artifact.
-9. Avoid hidden-test overfitting and never exploit grader bugs.
+ 1. One independent change per experiment; record every config diff.
+ 2. Use the same workload, arrival schedule, random seeds where applicable, warmup, measurement window, and hardware state.
+ 3. Repeat runs; compare medians and spread, not a single lucky result.
+ 4. Keep raw per-request records, not just aggregates.
+ 5. Evaluate correctness and API semantics before comparing speed.
+ 6. Keep category-level metrics so an aggregate does not hide Thai/coding/tool-call regression.
+ 7. Use the actual official scoring formula to rank candidates.
+ 8. Maintain a rollback path and a frozen “best-known” artifact.
+ 9. Avoid hidden-test overfitting and never exploit grader bugs.
 10. Save a final reproducibility bundle: launch script, environment, artifact hashes, logs, and known limitations.
 
 ## 5. Diagnostic guide
 
 | Symptom | Plausible causes | First experiment |
-|---|---|---|
+| --- | --- | --- |
 | High TTFT, acceptable TPOT | Long prefill, queueing, tokenizer/template overhead, large prompt batches | Split TTFT into queue/preprocess/prefill where possible; vary batched-token budget |
 | Good TTFT, poor TPOT | Decode bandwidth/compute bottleneck, low batching, cache pressure, inefficient kernels | Measure decode throughput and active sequences; test supported batch/cache settings |
 | Good average, poor p95 | Queue bursts, long requests starving short ones, preemption, CPU contention | Inspect per-request traces and request-length mix; test chunked prefill/scheduling |
@@ -497,7 +517,7 @@ Do not skip from “I can launch the server” directly to quantization or custo
 - **Ramp/peak/quiet/drain:** Phases of a load schedule; exact durations/rates come from the briefing.
 - **Baseline:** Designated reference configuration or score.
 - **Clipping/saturation:** Score behavior that caps values beyond a boundary; exact formula is event-specific.
-- **`s_E`, `s_T`, `s_L`, `A`, `S`:** Event-specific energy, throughput, latency, accuracy, and total-score symbols. Do not infer their formula from notation alone.
+- `s_E`**,** `s_T`**,** `s_L`**,** `A`**,** `S`**:** Event-specific energy, throughput, latency, accuracy, and total-score symbols. Do not infer their formula from notation alone.
 
 ### API and systems terms
 
@@ -515,41 +535,57 @@ Do not skip from “I can launch the server” directly to quantization or custo
 
 Use current documentation for the installed release and treat performance advice as a hypothesis to test on the exact model/GPU.
 
-1. vLLM optimization and tuning: https://docs.vllm.ai/en/stable/configuration/optimization/ — chunked prefill, cache pressure, preemption, and CPU-side serving considerations.
-2. vLLM OpenAI-compatible server: https://docs.vllm.ai/en/stable/serving/openai_compatible_server/ — API behavior and supported interfaces.
-3. NVIDIA A100 datasheet: https://resources.nvidia.com/en-us-gpu-resources/nvidia-a100-datashee-1 — SKU-dependent compute, memory, and power specifications.
-4. NVIDIA Ampere architecture overview: https://developer.nvidia.com/blog/nvidia-ampere-architecture-in-depth/ — Tensor Cores, memory hierarchy, and A100 architecture.
-5. Mamba paper: https://arxiv.org/abs/2312.00752 — selective state-space modeling and sequence-length scaling.
-6. Gated Delta Networks paper: https://arxiv.org/abs/2412.06464 — gating and delta-rule updates; hybrid architectures.
-7. Hugging Face quantization overview: https://huggingface.co/docs/transformers/main/en/quantization/overview — formats and supported methods.
-8. Hugging Face AWQ documentation: https://huggingface.co/docs/transformers/main/en/quantization/awq — AWQ concepts and implementation caveats.
-9. NVIDIA DCGM documentation: https://docs.nvidia.com/datacenter/dcgm/latest/ — GPU monitoring, power and energy telemetry.
+ 1. vLLM optimization and tuning: https://docs.vllm.ai/en/stable/configuration/optimization/ — chunked prefill, cache pressure, preemption, and CPU-side serving considerations.
+ 2. vLLM OpenAI-compatible server: https://docs.vllm.ai/en/stable/serving/openai_compatible_server/ — API behavior and supported interfaces.
+ 3. NVIDIA A100 datasheet: https://resources.nvidia.com/en-us-gpu-resources/nvidia-a100-datashee-1 — SKU-dependent compute, memory, and power specifications.
+ 4. NVIDIA Ampere architecture overview: https://developer.nvidia.com/blog/nvidia-ampere-architecture-in-depth/ — Tensor Cores, memory hierarchy, and A100 architecture.
+ 5. Mamba paper: https://arxiv.org/abs/2312.00752 — selective state-space modeling and sequence-length scaling.
+ 6. Gated Delta Networks paper: https://arxiv.org/abs/2412.06464 — gating and delta-rule updates; hybrid architectures.
+ 7. Hugging Face quantization overview: https://huggingface.co/docs/transformers/main/en/quantization/overview — formats and supported methods.
+ 8. Hugging Face AWQ documentation: https://huggingface.co/docs/transformers/main/en/quantization/awq — AWQ concepts and implementation caveats.
+ 9. NVIDIA DCGM documentation: https://docs.nvidia.com/datacenter/dcgm/latest/ — GPU monitoring, power and energy telemetry.
 10. CUDA programming model refresher: https://developer.nvidia.com/blog/cuda-refresher-cuda-programming-model/ — GPU execution and memory hierarchy.
 
 ## 9. Final mastery checklist
 
 ### Rules and scoring
+
 - [ ] I can state every hard eligibility gate and useful-request condition exactly.
+
 - [ ] I can write down the exact `A`, `s_E`, `s_T`, `s_L`, and `S` formulas from the briefing.
+
 - [ ] I know all score thresholds, clipping/saturation rules, and pitch weights.
 
 ### Model and serving
+
 - [ ] I can explain tokens, logits, sampling, prefill, decode, and model state.
+
 - [ ] I can explain why this hybrid architecture differs from a conventional Transformer.
+
 - [ ] I can verify the endpoint, streaming, tool calling, Thai, and long-context behavior.
 
 ### Measurement and optimization
+
 - [ ] I can reproduce the baseline from a written environment/configuration record.
+
 - [ ] I can calculate throughput, p95, accuracy retention, and energy using the official definitions.
+
 - [ ] I can identify whether a bottleneck is CPU, queueing, prefill, decode, memory, compute, or cache pressure.
+
 - [ ] I can run one-variable experiments with repeated trials and category-level correctness checks.
+
 - [ ] I can explain why each tested optimization helped or failed.
+
 - [ ] I can select the best configuration using the official score rather than raw speed.
 
 ### Final submission and pitch
+
 - [ ] I have a frozen best-known configuration and rollback path.
+
 - [ ] I have validation results, raw logs, telemetry, hashes, and launch instructions.
+
 - [ ] I can quantify energy impact and distinguish measurement from hypothesis.
+
 - [ ] I can present the bottleneck, experiment, result, trade-offs, limitations, and reproducibility clearly.
 
 ## 10. Immediate next actions

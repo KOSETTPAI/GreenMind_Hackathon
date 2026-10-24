@@ -1,0 +1,14 @@
+# V8, conditional. Parent: run8. Single change: --gpu-memory-utilization 0.92 (was 0.90).
+# Run only when telemetry shows preemptions or the KV cache filling up.
+# If the kept server is not run8, copy that profile and change only this value.
+CMKL/MANGO1.5-Qwen3.5-9B-AWQ-W4A16-mtp
+--host 0.0.0.0
+--port 8000
+--served-model-name mango1.5-awq-w4a16
+--trust-remote-code
+--gpu-memory-utilization 0.92
+--max-model-len 40960
+--enable-auto-tool-choice
+--tool-call-parser qwen3_coder
+--reasoning-parser qwen3
+--max-num-batched-tokens 8192

@@ -1,0 +1,322 @@
+[
+    {
+        "Id": "d753a4a716aaed32a0989a64ea3ed08c2c07c3e5e2a585c3dc31c829a631629d",
+        "Created": "2026-10-24T10:53:21.569090202Z",
+        "Path": "vllm",
+        "Args": [
+            "serve",
+            "CMKL/MANGO1.5-Qwen3.5-9B-AWQ-W4A16-mtp",
+            "--host",
+            "0.0.0.0",
+            "--port",
+            "8000",
+            "--served-model-name",
+            "mango1.5-awq-w4a16",
+            "--trust-remote-code",
+            "--gpu-memory-utilization",
+            "0.90",
+            "--max-model-len",
+            "40960",
+            "--enable-auto-tool-choice",
+            "--tool-call-parser",
+            "qwen3_coder",
+            "--reasoning-parser",
+            "qwen3",
+            "--speculative-config",
+            "{\"method\":\"mtp\",\"num_speculative_tokens\":1}",
+            "--enable-prefix-caching",
+            "--mamba-cache-mode",
+            "align",
+            "--long-prefill-token-threshold",
+            "1056"
+        ],
+        "State": {
+            "Status": "running",
+            "Running": true,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 29052,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-10-24T10:53:21.707576943Z",
+            "FinishedAt": "0001-01-01T00:00:00Z"
+        },
+        "Image": "sha256:cb12c3016938a4ee98ed176ac833984089460689a0982cff4b5a60bb45b3cded",
+        "ResolvConfPath": "/var/lib/docker/containers/d753a4a716aaed32a0989a64ea3ed08c2c07c3e5e2a585c3dc31c829a631629d/resolv.conf",
+        "HostnamePath": "/var/lib/docker/containers/d753a4a716aaed32a0989a64ea3ed08c2c07c3e5e2a585c3dc31c829a631629d/hostname",
+        "HostsPath": "/var/lib/docker/containers/d753a4a716aaed32a0989a64ea3ed08c2c07c3e5e2a585c3dc31c829a631629d/hosts",
+        "LogPath": "/var/lib/docker/containers/d753a4a716aaed32a0989a64ea3ed08c2c07c3e5e2a585c3dc31c829a631629d/d753a4a716aaed32a0989a64ea3ed08c2c07c3e5e2a585c3dc31c829a631629d-json.log",
+        "Name": "/mango-vllm",
+        "RestartCount": 0,
+        "Driver": "overlayfs",
+        "Platform": "linux",
+        "MountLabel": "",
+        "ProcessLabel": "",
+        "AppArmorProfile": "docker-default",
+        "ExecIDs": null,
+        "HostConfig": {
+            "Binds": [
+                "/home/researcher/.cache/huggingface:/root/.cache/huggingface"
+            ],
+            "ContainerIDFile": "",
+            "LogConfig": {
+                "Type": "json-file",
+                "Config": {}
+            },
+            "NetworkMode": "bridge",
+            "PortBindings": {
+                "8000/tcp": [
+                    {
+                        "HostIp": "0.0.0.0",
+                        "HostPort": "8000"
+                    }
+                ]
+            },
+            "RestartPolicy": {
+                "Name": "unless-stopped",
+                "MaximumRetryCount": 0
+            },
+            "AutoRemove": false,
+            "VolumeDriver": "",
+            "VolumesFrom": null,
+            "ConsoleSize": [
+                0,
+                0
+            ],
+            "CapAdd": null,
+            "CapDrop": null,
+            "CgroupnsMode": "private",
+            "Dns": null,
+            "DnsOptions": [],
+            "DnsSearch": [],
+            "ExtraHosts": null,
+            "GroupAdd": null,
+            "IpcMode": "host",
+            "Cgroup": "",
+            "Links": null,
+            "OomScoreAdj": 0,
+            "PidMode": "",
+            "Privileged": false,
+            "PublishAllPorts": false,
+            "ReadonlyRootfs": false,
+            "SecurityOpt": [
+                "label=disable"
+            ],
+            "UTSMode": "",
+            "UsernsMode": "",
+            "ShmSize": 67108864,
+            "Runtime": "runc",
+            "Isolation": "",
+            "CpuShares": 0,
+            "Memory": 0,
+            "NanoCpus": 0,
+            "CgroupParent": "",
+            "BlkioWeight": 0,
+            "BlkioWeightDevice": [],
+            "BlkioDeviceReadBps": [],
+            "BlkioDeviceWriteBps": [],
+            "BlkioDeviceReadIOps": [],
+            "BlkioDeviceWriteIOps": [],
+            "CpuPeriod": 0,
+            "CpuQuota": 0,
+            "CpuRealtimePeriod": 0,
+            "CpuRealtimeRuntime": 0,
+            "CpusetCpus": "",
+            "CpusetMems": "",
+            "Devices": [],
+            "DeviceCgroupRules": null,
+            "DeviceRequests": [
+                {
+                    "Driver": "",
+                    "Count": -1,
+                    "DeviceIDs": null,
+                    "Capabilities": [
+                        [
+                            "gpu"
+                        ]
+                    ],
+                    "Options": {}
+                }
+            ],
+            "MemoryReservation": 0,
+            "MemorySwap": 0,
+            "MemorySwappiness": null,
+            "OomKillDisable": null,
+            "PidsLimit": null,
+            "Ulimits": [],
+            "CpuCount": 0,
+            "CpuPercent": 0,
+            "IOMaximumIOps": 0,
+            "IOMaximumBandwidth": 0,
+            "MaskedPaths": [
+                "/proc/acpi",
+                "/proc/asound",
+                "/proc/interrupts",
+                "/proc/kcore",
+                "/proc/keys",
+                "/proc/latency_stats",
+                "/proc/sched_debug",
+                "/proc/scsi",
+                "/proc/timer_list",
+                "/proc/timer_stats",
+                "/sys/devices/virtual/powercap",
+                "/sys/firmware"
+            ],
+            "ReadonlyPaths": [
+                "/proc/bus",
+                "/proc/fs",
+                "/proc/irq",
+                "/proc/sys",
+                "/proc/sysrq-trigger"
+            ]
+        },
+        "Storage": {
+            "RootFS": {
+                "Snapshot": {
+                    "Name": "overlayfs"
+                }
+            }
+        },
+        "Mounts": [
+            {
+                "Type": "bind",
+                "Source": "/home/researcher/.cache/huggingface",
+                "Destination": "/root/.cache/huggingface",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            }
+        ],
+        "Config": {
+            "Hostname": "d753a4a716aa",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": false,
+            "AttachStdout": false,
+            "AttachStderr": false,
+            "ExposedPorts": {
+                "8000/tcp": {}
+            },
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "PATH=/usr/local/cuda/bin:/usr/local/nvidia/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "NVARCH=x86_64",
+                "NVIDIA_REQUIRE_CUDA=cuda>=13.0 brand=unknown,driver>=535,driver<536 brand=grid,driver>=535,driver<536 brand=tesla,driver>=535,driver<536 brand=nvidia,driver>=535,driver<536 brand=quadro,driver>=535,driver<536 brand=quadrortx,driver>=535,driver<536 brand=nvidiartx,driver>=535,driver<536 brand=vapps,driver>=535,driver<536 brand=vpc,driver>=535,driver<536 brand=vcs,driver>=535,driver<536 brand=vws,driver>=535,driver<536 brand=cloudgaming,driver>=535,driver<536 brand=unknown,driver>=550,driver<551 brand=grid,driver>=550,driver<551 brand=tesla,driver>=550,driver<551 brand=nvidia,driver>=550,driver<551 brand=quadro,driver>=550,driver<551 brand=quadrortx,driver>=550,driver<551 brand=nvidiartx,driver>=550,driver<551 brand=vapps,driver>=550,driver<551 brand=vpc,driver>=550,driver<551 brand=vcs,driver>=550,driver<551 brand=vws,driver>=550,driver<551 brand=cloudgaming,driver>=550,driver<551 brand=unknown,driver>=565,driver<566 brand=grid,driver>=565,driver<566 brand=tesla,driver>=565,driver<566 brand=nvidia,driver>=565,driver<566 brand=quadro,driver>=565,driver<566 brand=quadrortx,driver>=565,driver<566 brand=nvidiartx,driver>=565,driver<566 brand=vapps,driver>=565,driver<566 brand=vpc,driver>=565,driver<566 brand=vcs,driver>=565,driver<566 brand=vws,driver>=565,driver<566 brand=cloudgaming,driver>=565,driver<566 brand=unknown,driver>=570,driver<571 brand=grid,driver>=570,driver<571 brand=tesla,driver>=570,driver<571 brand=nvidia,driver>=570,driver<571 brand=quadro,driver>=570,driver<571 brand=quadrortx,driver>=570,driver<571 brand=nvidiartx,driver>=570,driver<571 brand=vapps,driver>=570,driver<571 brand=vpc,driver>=570,driver<571 brand=vcs,driver>=570,driver<571 brand=vws,driver>=570,driver<571 brand=cloudgaming,driver>=570,driver<571 brand=unknown,driver>=575,driver<576 brand=grid,driver>=575,driver<576 brand=tesla,driver>=575,driver<576 brand=nvidia,driver>=575,driver<576 brand=quadro,driver>=575,driver<576 brand=quadrortx,driver>=575,driver<576 brand=nvidiartx,driver>=575,driver<576 brand=vapps,driver>=575,driver<576 brand=vpc,driver>=575,driver<576 brand=vcs,driver>=575,driver<576 brand=vws,driver>=575,driver<576 brand=cloudgaming,driver>=575,driver<576",
+                "NV_CUDA_CUDART_VERSION=13.0.96-1",
+                "CUDA_VERSION=13.0.2",
+                "LD_LIBRARY_PATH=/usr/local/nvidia/lib64:/usr/local/cuda/lib64:/usr/local/cuda/lib64:/usr/local/nvidia/lib:/usr/local/nvidia/lib64:/usr/local/cuda/lib64",
+                "NVIDIA_VISIBLE_DEVICES=all",
+                "NVIDIA_DRIVER_CAPABILITIES=compute,utility",
+                "DEBIAN_FRONTEND=noninteractive",
+                "CUDA_HOME=/usr/local/cuda",
+                "CRIU_CUDA_PLUGIN_DIR=/usr/local/lib/criu",
+                "UV_HTTP_TIMEOUT=500",
+                "UV_INDEX_STRATEGY=unsafe-best-match",
+                "UV_LINK_MODE=copy",
+                "UV_PYTHON_INSTALL_DIR=/opt/uv/python",
+                "UV_CACHE_DIR=/opt/uv/cache",
+                "UV_COMPILE_BYTECODE=1",
+                "UV_OVERRIDE=/etc/uv-overrides.txt",
+                "VLLM_ENABLE_CUDA_COMPATIBILITY=0",
+                "TORCH_CUDA_ARCH_LIST=7.5 8.0 8.6 8.9 9.0 10.0 12.0",
+                "VLLM_USAGE_SOURCE=production-docker-image",
+                "VLLM_BUILD_COMMIT=83c078d955cd6e0c63d3b12abe669c8de936a370",
+                "VLLM_BUILD_PIPELINE=019d130e-464e-4ff7-b84b-492992c0c06b",
+                "VLLM_BUILD_URL=https://buildkite.com/vllm/release-v2/builds/9006",
+                "VLLM_IMAGE_TAG=vllm/vllm-openai:nightly-83c078d955cd6e0c63d3b12abe669c8de936a370"
+            ],
+            "Cmd": [
+                "CMKL/MANGO1.5-Qwen3.5-9B-AWQ-W4A16-mtp",
+                "--host",
+                "0.0.0.0",
+                "--port",
+                "8000",
+                "--served-model-name",
+                "mango1.5-awq-w4a16",
+                "--trust-remote-code",
+                "--gpu-memory-utilization",
+                "0.90",
+                "--max-model-len",
+                "40960",
+                "--enable-auto-tool-choice",
+                "--tool-call-parser",
+                "qwen3_coder",
+                "--reasoning-parser",
+                "qwen3",
+                "--speculative-config",
+                "{\"method\":\"mtp\",\"num_speculative_tokens\":1}",
+                "--enable-prefix-caching",
+                "--mamba-cache-mode",
+                "align",
+                "--long-prefill-token-threshold",
+                "1056"
+            ],
+            "Image": "vllm/vllm-openai:nightly",
+            "Volumes": null,
+            "WorkingDir": "/vllm-workspace",
+            "Entrypoint": [
+                "vllm",
+                "serve"
+            ],
+            "Labels": {
+                "ai.vllm.build.commit": "83c078d955cd6e0c63d3b12abe669c8de936a370",
+                "ai.vllm.build.pipeline": "019d130e-464e-4ff7-b84b-492992c0c06b",
+                "ai.vllm.build.url": "https://buildkite.com/vllm/release-v2/builds/9006",
+                "ai.vllm.image.tag": "vllm/vllm-openai:nightly-83c078d955cd6e0c63d3b12abe669c8de936a370",
+                "greenmind.bind": "0.0.0.0",
+                "greenmind.run": "run4",
+                "greenmind.tier": "full-lpt1056",
+                "maintainer": "NVIDIA CORPORATION <cudatools@nvidia.com>",
+                "org.opencontainers.image.ref.name": "ubuntu",
+                "org.opencontainers.image.revision": "83c078d955cd6e0c63d3b12abe669c8de936a370",
+                "org.opencontainers.image.source": "https://github.com/vllm-project/vllm",
+                "org.opencontainers.image.url": "https://buildkite.com/vllm/release-v2/builds/9006",
+                "org.opencontainers.image.version": "vllm/vllm-openai:nightly-83c078d955cd6e0c63d3b12abe669c8de936a370"
+            }
+        },
+        "NetworkSettings": {
+            "SandboxID": "997908f55c4cabc01b5eac9a8e6e51c1e527541c0a988b88337029cdfdfb1e56",
+            "SandboxKey": "/var/run/docker/netns/997908f55c4c",
+            "Ports": {
+                "8000/tcp": [
+                    {
+                        "HostIp": "0.0.0.0",
+                        "HostPort": "8000"
+                    }
+                ]
+            },
+            "Networks": {
+                "bridge": {
+                    "IPAMConfig": null,
+                    "Links": null,
+                    "Aliases": null,
+                    "DriverOpts": null,
+                    "GwPriority": 0,
+                    "NetworkID": "1fd10d75c95b7ab2a6154c8b6e13fa643a97da34a13cd19d4a46fced4a55a174",
+                    "EndpointID": "ae75c5a084044a1fc7ee5986464e8d4bd9f17bd6e89bf3220333f2dc5ba4fadc",
+                    "Gateway": "172.28.0.1",
+                    "IPAddress": "172.28.0.2",
+                    "MacAddress": "5e:3b:d5:37:f9:e5",
+                    "IPPrefixLen": 24,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "DNSNames": null
+                }
+            }
+        },
+        "ImageManifestDescriptor": {
+            "mediaType": "application/vnd.docker.distribution.manifest.v2+json",
+            "digest": "sha256:d428631bb917a33d22308265d1b8be91522f862bf9fd133bee62dde3313664ae",
+            "size": 8684,
+            "platform": {
+                "architecture": "amd64",
+                "os": "linux"
+            }
+        }
+    }
+]

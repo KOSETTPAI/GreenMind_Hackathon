@@ -1,0 +1,7 @@
+[chat] prompt=23 completion=170 finish=stop TTFT=0.072s (SLO 0.506s) TPOT=4.6ms reasoning_chars=343
+[thai] prompt=18 completion=239 finish=stop TTFT=0.050s (SLO 0.504s) TPOT=4.9ms reasoning_chars=769
+[tool-turn1] prompt=282 completion=64 finish=tool_calls TTFT=0.050s (SLO 0.571s) TPOT=4.4ms reasoning_chars=143
+[tool-turn2] prompt=348 completion=14 finish=stop TTFT=0.052s (SLO 0.587s) TPOT=4.9ms reasoning_chars=51
+
+[FAIL] tool-turn2: no final answer after the tool result
+RESULT: WARMUP FAILED. Do not submit.

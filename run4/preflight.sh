@@ -37,7 +37,7 @@ if [[ -n "${PROFILE:-}" ]]; then
   PROFILE_SOURCE="PROFILE environment variable"
 else
   case "$LABEL_TIER" in
-    full|full-k2|no-prefix|no-mtp) PROFILE="r4-$LABEL_TIER"; PROFILE_SOURCE="container label greenmind.tier=$LABEL_TIER" ;;
+    full|full-k2|no-prefix|no-mtp|full-lpt1056) PROFILE="r4-$LABEL_TIER"; PROFILE_SOURCE="container label greenmind.tier=$LABEL_TIER" ;;
     safe) PROFILE="e1"; PROFILE_SOURCE="container label greenmind.tier=safe" ;;
     *) PROFILE="e1"; PROFILE_SOURCE="default (no run4 label)" ;;
   esac

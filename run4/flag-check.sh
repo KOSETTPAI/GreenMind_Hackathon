@@ -16,7 +16,8 @@ case "${1:-}" in
   no-prefix) PROFILE_FILE="$HERE/profiles/r4-no-prefix.args" ;;
   no-mtp) PROFILE_FILE="$HERE/profiles/r4-no-mtp.args" ;;
   safe) PROFILE_FILE="$HERE/profiles/e1.args" ;;
-  *) echo "Usage: $0 full|no-prefix|no-mtp|safe|full-k2" >&2; exit 2 ;;
+  full-lpt1056) PROFILE_FILE="$HERE/profiles/r4-full-lpt1056.args" ;;
+  *) echo "Usage: $0 full|no-prefix|no-mtp|safe|full-k2|full-lpt1056" >&2; exit 2 ;;
 esac
 
 echo "Image:   $IMAGE"

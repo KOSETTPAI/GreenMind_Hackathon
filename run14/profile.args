@@ -1,0 +1,17 @@
+# Conditional follow-up of V2. Parent: run5 (prefix caching on, MTP off).
+# Single change: --enable-mamba-shared-prefix-checkpoint.
+# Run only if cache-on beat cache-off but the hit rate on repeated prefixes stayed low,
+# and only after ./run14/flag-check.sh says this flag exists in the image.
+CMKL/MANGO1.5-Qwen3.5-9B-AWQ-W4A16-mtp
+--host 0.0.0.0
+--port 8000
+--served-model-name mango1.5-awq-w4a16
+--trust-remote-code
+--gpu-memory-utilization 0.90
+--max-model-len 40960
+--enable-auto-tool-choice
+--tool-call-parser qwen3_coder
+--reasoning-parser qwen3
+--enable-prefix-caching
+--mamba-cache-mode align
+--enable-mamba-shared-prefix-checkpoint

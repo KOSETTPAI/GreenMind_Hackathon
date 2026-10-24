@@ -8,6 +8,7 @@
 #   ./run4/start.sh no-prefix       # fallback: drop prefix caching
 #   ./run4/start.sh no-mtp          # fallback: drop MTP
 #   ./run4/start.sh safe            # fallback: the measured E1 server
+#   ./run4/start.sh full-lpt1056    # R4-full + --long-prefill-token-threshold 1056
 #   CONFIRM_K2=1 ./run4/start.sh full-k2
 #
 # Like scripts/start-vllm.sh, it refuses to replace an existing container:
@@ -58,7 +59,8 @@ case "$TIER" in
   no-prefix) PROFILE_FILE="$HERE/profiles/r4-no-prefix.args" ;;
   no-mtp) PROFILE_FILE="$HERE/profiles/r4-no-mtp.args" ;;
   safe) PROFILE_FILE="$HERE/profiles/e1.args" ;;
-  *) die "Unknown tier '$TIER'. Run with no argument for R4-full, or one of: full no-prefix no-mtp safe full-k2" ;;
+  full-lpt1056) PROFILE_FILE="$HERE/profiles/r4-full-lpt1056.args" ;;
+  *) die "Unknown tier '$TIER'. Run with no argument for R4-full, or one of: full no-prefix no-mtp safe full-k2 full-lpt1056" ;;
 esac
 
 [[ "$PORT" =~ ^[0-9]+$ ]] || die "PORT must be a number."

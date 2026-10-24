@@ -1,0 +1,13 @@
+# V3. Parent: run6. Single change: --max-num-batched-tokens 4096.
+# This file assumes prefix caching stayed off. If run5 beats run6, copy run5/profile.args and add only this line.
+CMKL/MANGO1.5-Qwen3.5-9B-AWQ-W4A16-mtp
+--host 0.0.0.0
+--port 8000
+--served-model-name mango1.5-awq-w4a16
+--trust-remote-code
+--gpu-memory-utilization 0.90
+--max-model-len 40960
+--enable-auto-tool-choice
+--tool-call-parser qwen3_coder
+--reasoning-parser qwen3
+--max-num-batched-tokens 4096
