@@ -1,57 +1,70 @@
-# experiments_thyme — later list
+# experiments_thyme — Running the approach/ experiments
 
-**This is not a second experiment system.** All runs go through the team's process:
+Launch configs and helper scripts for testing the ranked approaches in [approach/](../approach/README.md) on the A100 VM, one change per run.
 
-- What to run, in order: [experiments/README.md](../experiments/README.md)
-- Exact commands on the VM: [experiments/vm-sequence.md](../experiments/vm-sequence.md)
-- Where results go: [experiments/log.md](../experiments/log.md)
-- Where kept wins go: [experiments/adopted.env](../experiments/adopted.env)
-
-This folder holds only two things: a checklist for sharing the one VM, and ideas to try **after** the team's sequence is finished, if time remains before Final closes (25 October, 11:00).
-
-The earlier parallel scripts and configs were removed so the team has one set of records. They are still in Git history (commit `0a4df0b`) if ever needed.
+**Status: untested.** Nothing here has been run. The files were checked statically: syntax, and a dry resolve of every config's `vllm serve` arguments. Flag names come from the approach files, which take them from the vLLM docs. Run `scripts/preflight.sh` on the VM before trusting a config.
 
 ---
 
-## Before touching the VM
+## Files
 
-There is one GPU, one endpoint on port 8000, and one Validation quota (5 per hour), shared by the whole team.
+```
+experiments_thyme/
+  README.md                       this file
+  configs/README.md               approach → config map, run order, what has no config and why
+  configs/_stack.conf             current winner of every approach (starts = scripts/start-vllm.sh)
+  configs/A00_stack.conf          the stack unchanged: reference for the next test
+  configs/A01–A13_*.conf          one config per tested value, each changing one thing vs the stack
+  scripts/lib.sh                  defaults = scripts/start-vllm.sh; shared helpers
+  scripts/preflight.sh            checks the config's flags exist in the vLLM image (no GPU used)
+  scripts/apply-gpu-settings.sh   sets or resets power cap / clock lock before launch (approaches 2, 11)
+  scripts/launch.sh               starts container "thyme-vllm" + writes a run record
+  scripts/stop.sh                 removes thyme-vllm only (refuses other containers)
+  scripts/smoke_grader_shape.py   streaming + thinking on + Thai + 2-turn tool call; TTFT/TPOT vs SLO
+  scripts/telemetry.sh            1 s samples: power, util, clocks, running/waiting, KV use, tokens
+  scripts/summarize_telemetry.py  energy estimate, util while busy, peak running, J/token, MTP acceptance
+  results/log.md                  one row per Validation run
+  results/runs/<utc>_<config>/    created by launch.sh: config, _stack.conf, exact command, image digest, vLLM version
+```
 
-1. **Ask in the team chat** whether anyone is running or about to submit. Say what you are going to run.
-2. **Check that nothing is mid-run:**
-   ```bash
-   docker ps
-   ```
-   ```bash
-   nvidia-smi
-   ```
-   A `mango-vllm` container under load (high GPU utilization) means someone may be testing. Don't remove it until they confirm.
-3. **Check the power limit** before and after your run:
-   ```bash
-   bash experiments/07-power-cap/show-power.sh
-   ```
-   If you set a cap, restore it when you're done (see [experiments/07-power-cap/README.md](../experiments/07-power-cap/README.md)). A forgotten cap silently changes the next person's result.
-4. **Write the result in `experiments/log.md`** right after the grader finishes, including failed runs.
+## One run
+
+```bash
+S=experiments_thyme/scripts
+C=experiments_thyme/configs/A02_power_200w.conf
+$S/preflight.sh $C
+$S/apply-gpu-settings.sh $C          # every config: sets its cap/clock or resets to defaults
+$S/launch.sh $C
+docker logs -f thyme-vllm            # wait for "Application startup complete"
+python3 $S/smoke_grader_shape.py     # contract check + warm-up (approach 10)
+$S/telemetry.sh experiments_thyme/results/runs/<run>/telemetry.csv &
+# ... Validation submission in the grader UI; when it finishes: kill %1 ...
+python3 $S/summarize_telemetry.py experiments_thyme/results/runs/<run>/telemetry.csv
+$S/stop.sh
+```
+
+Log the run in [results/log.md](results/log.md). If it won by more than the A00-vs-A00 noise, with no per-class accuracy drop, write its value into [configs/_stack.conf](configs/_stack.conf). The order to follow is in [configs/README.md](configs/README.md).
 
 ---
 
-## Later list
+## Baseline preserved
 
-The team's README puts all of these on hold for later. The team launcher (`experiments/lib/launch-from-baseline.sh`) only accepts its own fixed set of flags, so **each one needs the team to agree first** and someone to add a step folder plus an allowed flag to that launcher. Don't run them by hand on the shared server.
+- `scripts/start-vllm.sh`, `scripts/test-*.sh`, `experiments/` and `approach/` are **unchanged**.
+- `lib.sh` defaults and the starting `_stack.conf` copy the original script's values: image `vllm/vllm-openai:nightly`, model `CMKL/MANGO1.5-Qwen3.5-9B-AWQ-W4A16-mtp`, served name `mango1.5-awq-w4a16`, bind `127.0.0.1:8000`, memory 0.85, max length 32768, `qwen3_coder` tool parser, `qwen3` reasoning parser, `--trust-remote-code`. The dry resolve of `A00_stack` gives exactly the original flags.
+- Differences from the original launch:
+  - Container name `thyme-vllm`, so it can't collide with `mango-vllm`.
+  - No `--restart unless-stopped`, so a crashing config doesn't restart in a loop.
+  - Run labels.
+  - It refuses to start if the GPU is in use, or if the power limit doesn't match the config.
+- `A01_baseline_bf16` reproduces the official scoring baseline (BF16, vLLM defaults) separately from the stack.
 
-| Idea | Approach | Change | Try only when | Main risk |
-|---|---|---|---|---|
-| Mamba state in BF16 | [9](../approach/9_Mamba_State_Cache_BF16.md) | `--mamba-ssm-cache-dtype bfloat16` | Prefix caching (team step 4) has a hit-rate result | Long-context and RAG accuracy can drop |
-| Fixed clock lock | [11](../approach/11_Fixed_Clock_Lock.md) | Host-side: `sudo nvidia-smi -lgc 1095,1095` (reset with `sudo nvidia-smi -rgc`) | The team's power-cap sweep (step 6) is done; compare 2–3 clocks against the best cap | Long prompts slow down and miss TTFT. Must stay constant for the whole run |
-| Two API server processes | [12](../approach/12_API_Server_and_CPU_Workers.md) | `--api-server-count 2` | During a run, one CPU core is at 100% while the GPU is idle and requests are queued. **Confirm with organizers** that this still counts as "one serving process" | Rule question; extra memory and CPU |
-| FP8 KV cache | [13](../approach/13_FP8_KV_Cache.md) | `--kv-cache-dtype fp8` | Everything else is settled; last of all | Small gain (only ~8 of 32 layers use a KV cache), long-context accuracy risk |
-| 8-bit weights instead of 4-bit | [3](../approach/3_Weight_Only_Quantization_With_Accuracy_Guardrail.md) fallback | BF16 checkpoint + `--quantization fp8` | Only if the AWQ model fails accuracy on some class (e.g. Thai), which the team hasn't seen | Changes the model, so it's not a one-flag experiment; the team launcher refuses non-AWQ models on purpose |
+### Two issues inherited from the original script (flagged, not changed in the stack)
 
-Always confirm a flag exists in the image before the run (the command is in [vm-sequence.md](../experiments/vm-sequence.md#flag-check)).
+1. **`MAX_MODEL_LEN=32768`.** Long-context prompts go up to 32K and `max_tokens` is 8192, so some requests may be rejected. `A08a_max_len_40960` tests the fix. Run it early if long-context requests error.
+2. **`BIND_ADDR=127.0.0.1`.** The grader calls `http://<vm-ip>:<port>/v1`. The team's deployment notes say the health check passed, so they may be using a proxy or tunnel. Confirm how before setting `BIND_ADDR=0.0.0.0` in `_stack.conf`.
 
----
+## Rule compliance
 
-## Notes from the review of the team process
-
-- **Scores so far:** V0 (`scripts/start-vllm.sh`) scored S = 34.8 with 56/100 requests on time. The 44 misses matter more than watts, which is why the team puts the power cap last.
-- **The team's smoke tests run with thinking off** (`scripts/test-chat.sh`, `test-stream.sh`). The grader runs with thinking on. The team's `experiments/10-warmup/warmup.sh` turns thinking on, so run it before every Submit, as their checklist says.
+- Open-source vLLM flags only, set at launch and constant for the whole run. Power cap and clock lock are applied before launch and never changed during a run.
+- One serving process on our own GPU. No response caching, no LD_PRELOAD, no NVML changes.
+- `telemetry.sh` only reads `nvidia-smi` and `GET /metrics`. To stay clearly within "no other workloads during a graded run", use it on **Validation runs only**, not on Final.
