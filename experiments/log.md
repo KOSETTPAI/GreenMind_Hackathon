@@ -41,11 +41,24 @@ Blank cells are not zeros. Copy them from grader History.
 | p95 TPOT | |
 | Decision | Baseline for every diff below. Next launch is E1 only |
 
+## E1 — Validation 2026-10-24 07:56:39 UTC
+
+| Field | Value |
+|---|---|
+| Grader file | `team-team17-validation-20261024T075639-0ad015-r1.jsonl` |
+| Server config | `experiments/01-max-model-len/start.sh`: V0 plus `--max-model-len 40960` |
+| History row (`S`, `A`, `s_E`, `s_T`, `s_L`, SLO-met, joules, p95 TTFT, p95 TPOT) | not copied yet |
+| Visible accuracy | 52 of 63 visible requests scored 1.00 |
+| Weakest visible families | `math` 1/4, agentic 11/17 |
+| Notable | Requests 98–100 (`math`) took 72.5–81.5 s; every other visible request finished within 29.7 s. Likely 8192-token cutoffs that also stretch the energy window |
+| Detail | [results/2026-10-24T075639Z-validation.md](results/2026-10-24T075639Z-validation.md) |
+| Decision | Keep 40960 (required for a 32K prompt plus 8192 output tokens). Fill the History row before comparing `S` with V0. run4 builds on this server |
+
 ## Hypotheses written before the runs
 
 | ID | Single change | Hypothesis | Result | Decision |
 |---|---|---|---|---|
-| E1 | `--max-model-len 40960` | A 32K prompt plus 8192 output tokens cannot fit in 32768, so some of the 44 misses are context errors or cutoffs. Fitting them raises the numerator of `η`. | | |
+| E1 | `--max-model-len 40960` | A 32K prompt plus 8192 output tokens cannot fit in 32768, so some of the 44 misses are context errors or cutoffs. Fitting them raises the numerator of `η`. | Ran 07:56 UTC. Visible `longctx` 5/5. History row not copied yet | Keep |
 | E2 | `--max-num-batched-tokens 4096` | Long prefills are blocking decode and failing the 50 ms TPOT check. A 4096 token step budget raises peak SLO-met without a matching rise in joules. | | |
 | E2b | `--enable-chunked-prefill` | Chunked prefill is off in the previous log. Enabling it moves the same TPOT failures into SLO-met. | | |
 | E3 | MTP `k=1` | Accepted draft tokens cut decode steps, joules, and TPOT, while temperature 0 verification holds `A` and tool JSON. | | |
@@ -53,7 +66,7 @@ Blank cells are not zeros. Copy them from grader History.
 | E3c | MTP `k=3` | The previous `k` raised `S`. Three draft tokens still pay for themselves. | | |
 | E4 | prefix caching, `mamba-cache-mode align` | Shared agent and RAG prefixes cut prefill joules and TTFT, and the startup log shows hits. | | |
 | E5 | `--gpu-memory-utilization 0.90` then `0.92` then `0.95` | Extra cache cuts preemptions while p95 TPOT is still under 50 ms, so SLO-met rises. | | |
-| E6 | `--max-num-seqs` one of 64, 128, 192, 256 | A larger decode batch amortizes each weight read until p95 TPOT nears 50 ms. | | |
+| E6 | `--max-num-seqs` one of 64, 128, 192, 256 | A larger decode batch amortizes each weight read until p95 TPOT nears 50 ms. | Deprioritized: about 40–60 concurrent requests at peak, under the usual default of 256 | |
 | E7 | constant 250 W, then 200 W, then 175 W | With SLO-met already at least 90/100, a lower constant cap cuts joules more than it adds time. | | |
 
 ## Row template

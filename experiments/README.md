@@ -73,6 +73,8 @@ One Validation per change. Revert a change that lowers SLO-met or `S`. Validatio
 
 Exact commands: [vm-sequence.md](vm-sequence.md).
 
+A combined server that stacks steps 1, 3, 4, and 5 in one launch is planned in [../run4/PLAN.md](../run4/PLAN.md), for the case where the one-flag ladder does not fit before Final closes.
+
 ## How a later step keeps an earlier win
 
 `experiments/adopted.env` starts empty, so each script differs from V0 by one flag.

@@ -49,8 +49,8 @@ Energy efficiency:
 η = SLO-met requests / GPU energy in joules
 ```
 
-- Energy is the NVML counter.
-- Idle energy is included.
+- Energy is GPU board energy from the NVML total-energy counter over the timed window. The grader page says CPU/DRAM (RAPL) and BMC/PDU energy are not readable on these VMs, so only GPU board joules count.
+- Idle energy inside the window is included.
 - Full energy marks are `3×` baseline efficiency.
 
 ```
@@ -97,6 +97,10 @@ A = max( 0.05, smoothstep(x) × c_f )
 c = weakest class accuracy / baseline accuracy for that class
 c_f = smoothstep( clip( (c - 0.50) / 0.25 , 0, 1 ) )
 ```
+
+The grader's History page words the class rule as: a **task family** with at least 20 items that keeps under 75% of the baseline's accuracy multiplies `A` by a smooth penalty, full at 75% and minimum at 50%. Task ids in Validation output carry family names such as `security`, `instruction`, `thai`, `longctx`, `math`, `sql_result`, and agentic `ag…` families. A family may be finer than the six workload classes in the briefing.
+
+Ties are broken by higher retention `R`, then lower p95 TTFT.
 
 - `R ≥ 0.98` gives `A = 1` before a class penalty. That is macro-accuracy of about `85.5%`.
 - `R ≤ 0.85` reaches the floor `A = 0.05`. The factor is never exactly 0 from the retention curve alone.
@@ -150,12 +154,14 @@ Indicative Validation of the defaults in `scripts/start-vllm.sh` (AWQ W4A16 chec
 | SLO-met | 56/100 |
 | `A`, `s_E`, `s_T`, `s_L`, joules, p95 TTFT, p95 TPOT | Not yet copied from grader History |
 
-If `A`, `s_T`, and `s_L` were all 1, then `s_E ≈ 0.17` and efficiency would be only about `1.2×` baseline. If accuracy or latency is worse than that, energy is better than `1.2×` and the score is being spent on those factors. Copy the History row before the next flag change. The ledger is `experiments/log.md`.
+If `A`, `s_T`, and `s_L` were all 1, then `s_E ≈ 0.17` and efficiency would be only about `1.2×` baseline. If accuracy or latency is worse than that, energy is better than `1.2×` and the score is being spent on those factors. Either way, V0 used at most about 30 kJ for 100 requests (56 SLO-met at about 1.21 × `η_base`). Full energy marks on 100 SLO-met requests need about 21.6 kJ or less. Copy the History row before the next flag change. The ledger is `experiments/log.md`.
+
+The E1 Validation (2026-10-24 07:56:39 UTC, V0 plus `--max-model-len 40960`) shows the three final `math` requests running 72–82 s, against at most about 30 s for every other visible request. They are likely 8192-token cutoffs, which fail SLO and accuracy and lengthen the energy window. Details: `experiments/results/2026-10-24T075639Z-validation.md`.
 
 ## 10. Still unresolved
 
-- How the 0.05 accuracy floor combines with a class factor of 0.
-- How classes with fewer than 20 questions affect `c_f`.
+- How the 0.05 accuracy floor combines with the family penalty. The History page calls 50% retention the penalty's "minimum", not zero.
+- Whether "task family" means the six briefing classes or the finer task-id families, and how families under 20 items affect `c_f`.
 - Whether a future Final page replaces `0.00154` / `87.2%` with another header.
 
 The image digest of `vllm/vllm-openai:nightly` for the 34.8 run was not recorded. Record it on the VM before comparing later runs.
