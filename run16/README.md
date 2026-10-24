@@ -11,9 +11,9 @@
 - a Final submission, which is the graded track anyway, or
 - `python3 lib/replay.py --label run16` with the GPU otherwise idle (see [lib/README.md](../lib/README.md)), compared with the same replay on run6.
 
-**Same profile as [run17-val1](../run17-val1/README.md).** Submit `run17-val1`, not this folder, so the grader run has the cycle name. Do not submit both.
+**Same profile as [final-run1](../final-run1/README.md).** Launch `final-run1`, not this folder, so the grader run has the Final name.
 
-**Keep if:** Final SLO-met rises well above 127/300 and `S` above 19.1, with `A` unchanged. The Final with this profile is [run20-final1](../run20-final1/README.md). The order after it is in [CYCLE_PLAN.md](../CYCLE_PLAN.md).
+**Keep if:** Final SLO-met rises well above 127/300 and `S` above 19.1, with `A` unchanged. The Final with this profile is [final-run1](../final-run1/README.md). The order after it is in [CYCLE_PLAN.md](../CYCLE_PLAN.md).
 
 ```bash
 ./run16/flag-check.sh

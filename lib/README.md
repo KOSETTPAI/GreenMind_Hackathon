@@ -1,6 +1,6 @@
 # Shared launch scripts
 
-`run5` onward use the scripts here, including `run17-val1` through `run41-final7`. `run4` keeps its own copies and its own profiles. Do not point a run4 launch at this directory.
+`run5` onward use the scripts here, including `final-run1` through `final-run7`. `run4` keeps its own copies and its own profiles. Do not point a run4 launch at this directory.
 
 Each later run is one change from its parent. The live order is `CYCLE_PLAN.md`. The profile in that run's folder is the whole vLLM argument list. `start.sh` launches exactly those arguments, and `preflight.sh` fails if the container has a different set.
 
@@ -24,7 +24,7 @@ Each later run is one change from its parent. The live order is `CYCLE_PLAN.md`.
 | run5 | 35.6 (57/100) | none |
 | run6 | **95.6** (98/100) | **19.1** (127/300) |
 
-Cycle 1 has used its first two Validations (run5, run6) and its first Final (run6, 19.1). Remaining this hour: `run17-val1`, `run18-val2`, `run19-val3`, then `run20-final1`. The schedule is [CYCLE_PLAN.md](../CYCLE_PLAN.md). The target is Final `S` = 99.9 against the Final baseline.
+Finals so far: run4 (#1, 0.0) and run6 (#2, 19.1). Next is `final-run1` (grader Final #3). Validations are optional works-checks of that server. The schedule is [CYCLE_PLAN.md](../CYCLE_PLAN.md). The target is Final `S` = 99.9 against the Final baseline.
 
 run6 holds on Validation and falls apart on the Final. The Final's peak drove 111 requests running at once against 35 on the Validation, and p95 TPOT rose from 18 ms to 82 ms. Diagnosis: [run6/ANALYSIS.md](../run6/ANALYSIS.md).
 
@@ -32,19 +32,19 @@ run6 did not actually turn prefix caching off. This image enables it by default,
 
 ### Next runs (parent run6)
 
-`run17-val1` through `run41-final7`, in the order in [CYCLE_PLAN.md](../CYCLE_PLAN.md). Each folder runs on its own: no launch guard, no replay. Its `start.sh` sets `GREENMIND_POWER_W` (empty means the card default, which `lib/start.sh` restores if an earlier run lowered it).
+`final-run1` through `final-run7`, in the order in [CYCLE_PLAN.md](../CYCLE_PLAN.md). Each folder runs on its own: no launch guard, no replay. Its `start.sh` sets `GREENMIND_POWER_W` (empty means the card default, which `lib/start.sh` restores if an earlier run lowered it).
 
 | Final | Folder | vLLM change from run6 | Power |
 |---|---|---|---|
-| final1 | [run20-final1](../run20-final1/README.md) | `--max-num-seqs 64` | default |
-| final2 | [run23-final2](../run23-final2/README.md) | cap 64 + MTP k=1 | default |
-| final3 | [run27-final3](../run27-final3/README.md) | cap 96 + MTP k=1 | default |
-| final4 | [run30-final4](../run30-final4/README.md) | cap 96 + MTP k=1 | 250 W |
-| final5 | [run34-final5](../run34-final5/README.md) | cap 96 + MTP k=1 | 225 W |
-| final6 | [run37-final6](../run37-final6/README.md) | cap 96 + MTP k=2 | 250 W |
-| final7 | [run41-final7](../run41-final7/README.md) | cap 96 + MTP k=1, or the best earlier Final | 250 W |
+| final1 | [final-run1](../final-run1/README.md) | `--max-num-seqs 64` | default |
+| final2 | [final-run2](../final-run2/README.md) | cap 64 + MTP k=1 | default |
+| final3 | [final-run3](../final-run3/README.md) | cap 96 + MTP k=1 | default |
+| final4 | [final-run4](../final-run4/README.md) | cap 96 + MTP k=1 | 250 W |
+| final5 | [final-run5](../final-run5/README.md) | cap 96 + MTP k=1 | 225 W |
+| final6 | [final-run6](../final-run6/README.md) | cap 96 + MTP k=2 | 250 W |
+| final7 | [final-run7](../final-run7/README.md) | cap 96 + MTP k=1, or the best earlier Final | 250 W |
 
-The Validations in between are works-checks of the next Final's server, plus a few variants.
+There are no separate Validation folders. A Validation slot, if used, runs on the next `final-runN` container as a works-check.
 
 `replay.py` is optional. Its prompts are random words, its prefix hits come only from `--reuse-prob`, and it has no agentic multi-turn episodes, so its absolute numbers will not equal the grader's.
 
@@ -66,7 +66,7 @@ The Validations in between are works-checks of the next Final's server, plus a f
 
 V10 in the plan is a repeat of whichever run won. Relaunch that same folder. It does not get a new profile.
 
-`run7` through `run15` were written when run6 was thought to have caching off. It does not: the image default is on, and that default is what scored 95.6. Those folders are not the next launches. The next launches are `run17-val1` onward, and each of them keeps the run6 argument list.
+`run7` through `run15` were written when run6 was thought to have caching off. It does not: the image default is on, and that default is what scored 95.6. Those folders are not the next launches. The next launches are `final-run1` onward, and each of them keeps the run6 argument list.
 
 ## Launch
 
