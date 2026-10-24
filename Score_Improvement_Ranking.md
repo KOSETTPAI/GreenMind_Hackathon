@@ -28,7 +28,7 @@ Two conclusions drive the ranking:
 
 ## Ranking
 
-The ranked list now lives in [approach/README.md](approach/README.md), one file per approach, numbered 1 (do first) to 18 (never do). File number = rank.
+The ranked list now lives in [approach/README.md](approach/README.md), one file per approach (numbered 1 to 19).
 
 ---
 

@@ -34,6 +34,7 @@ The verdict column is the original hypothesis. Follow [Run order after V0](#run-
 | 16 | [Switch engine (SGLang, TensorRT-LLM, llama.cpp)](16_Engine_Switch.md) | unknown | high | high | No |
 | 17 | [Pruning, fine-tuning, custom kernels](17_Rejected_Pruning_Finetuning_Kernels.md) | low | very high | high | No |
 | 18 | [Not allowed (dynamic clocks, response caching, NVML tampering, …)](18_Not_Allowed.md) | — | — | disqualification | **Never** |
+| 19 | [Top Trending vLLM Energy & Latency Techniques](19_Top_Trending_vLLM_Energy_and_Latency_Techniques.md) | very high | low | low | **Recommended** |
 
 ---
 
