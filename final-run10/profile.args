@@ -1,0 +1,19 @@
+# final-run10: cold-start breaker profile
+# Lesson from run 9: NEVER cap max-num-seqs (causes head-of-line blocking on long reasoning).
+# Lesson from run 8: budget 2048 prevents prefill chunks from dragging decodes past 50 ms.
+# Power: 350W gives full Tensor Core TFLOPS to keep prefill fast and TPOT < 45 ms.
+# Backend: FlashInfer for fast paged attention decodes.
+CMKL/MANGO1.5-Qwen3.5-9B-AWQ-W4A16-mtp
+--host 0.0.0.0
+--port 8000
+--served-model-name mango1.5-awq-w4a16
+--trust-remote-code
+--gpu-memory-utilization 0.92
+--max-model-len 40960
+--max-num-batched-tokens 2048
+--attention-backend FLASHINFER
+--enable-prefix-caching
+--mamba-cache-mode align
+--enable-auto-tool-choice
+--tool-call-parser qwen3_coder
+--reasoning-parser qwen3
