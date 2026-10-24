@@ -153,7 +153,14 @@ def main():
             ]
             r2 = run("tool-turn2", turn2, [TOOL])
             if r2 is not None and not r2["content"]:
-                failures.append("tool-turn2: no final answer after the tool result")
+                if r2["reasoning"].strip() and r2["finish"] == "stop":
+                    # MANGO answers this turn without a <think> block, so the qwen3
+                    # parser files the whole answer under reasoning_content. Seen on
+                    # every tier, including run4 full, which scored A = 1.00.
+                    warnings.append("tool-turn2: the answer arrived as reasoning_content, not content "
+                                    f"({r2['reasoning'].strip()[:80]!r})")
+                else:
+                    failures.append("tool-turn2: no final answer after the tool result")
 
     print()
     for w in warnings:

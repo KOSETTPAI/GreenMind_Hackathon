@@ -9,7 +9,7 @@ Each later run is one change from its parent, taken from `GreenMind_Experimentat
 | `start.sh` | `docker run`, wait for `/v1/models`, save a record under `~/greenmind-runs/<time>_<run>/`, run the preflight. Called by `<run>/start.sh`. Publishes `0.0.0.0:8000` unless `BIND` is set |
 | `preflight.sh` | Read-only. Checks the container against the profile, then chat, streaming, a tool call, and thinking-on streaming |
 | `preflight_checks.py` | The checks. Also rejects a profile that breaks the endpoint contract |
-| `flag-check.sh` | Confirms every profile flag exists in `vllm serve --help`. No GPU, safe while a server is running |
+| `flag-check.sh` | Confirms every profile flag exists in `vllm serve --help`. Prints help only, so the running server keeps serving. Not during a graded window |
 | `warmup.py` | Grader-shaped warmup, including a two-turn tool call. Run after `READY`, before Submit, never during a graded window |
 | `watch.sh`, `summarize.py` | One-second telemetry and its summary. Validation only |
 | `power.sh` | One constant power limit. `run15` is the only run that should call it |
