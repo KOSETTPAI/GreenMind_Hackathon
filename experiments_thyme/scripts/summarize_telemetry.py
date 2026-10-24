@@ -4,10 +4,10 @@
 Energy here is power.draw integrated over the sampling interval: an estimate to
 compare configs against each other, not the grader's NVML energy counter.
 
-The number this approach targets is "util while busy": mean GPU utilization in
-samples where vLLM has at least one running request. Anything well below 100%
-there is time the GPU sat waiting on the CPU (scheduling, detokenizing,
-streaming) while still drawing power.
+"Util while busy" is mean GPU utilization in samples where vLLM has at least
+one running request. Well below 100% means the GPU sat waiting on the CPU
+(scheduling, detokenizing, streaming): the trigger for approach 12. Peak running
+requests and preemptions guide approaches 5 and 8; spec acceptance, approach 4.
 
 Usage: python3 summarize_telemetry.py run.csv [--busy-util-threshold 90]
 """
@@ -57,12 +57,12 @@ def main():
         mean_util = sum(r["util_pct"] for r in busy) / len(busy)
         gaps = sum(1 for r in busy if r["util_pct"] < args.busy_util_threshold)
         print(f"busy samples            {len(busy)}, mean power {sum(r['power_w'] for r in busy) / len(busy):.0f} W")
-        print(f"util while busy         {mean_util:.1f}%  <- target of this approach")
+        print(f"util while busy         {mean_util:.1f}%  <- well below 100%: CPU-bound (approach 12)")
         print(f"busy samples < {args.busy_util_threshold:.0f}% util  {gaps / len(busy) * 100:.1f}%")
     running = [r["running"] for r in rows if r["running"] is not None]
     waiting = [r["waiting"] for r in rows if r["waiting"] is not None]
     if running:
-        print(f"peak running requests   {max(running):.0f}  <- compare with largest CUDA graph size (T3)")
+        print(f"peak running requests   {max(running):.0f}  <- size A05 max-num-seqs against this")
     if waiting:
         print(f"peak waiting requests   {max(waiting):.0f}")
     pre = delta(rows, "preemptions_total")

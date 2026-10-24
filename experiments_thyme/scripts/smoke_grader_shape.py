@@ -10,7 +10,7 @@ reports TTFT / TPOT against the per-request SLO from the briefing:
     TPOT <= 50 ms (skipped for one-token answers)
 
 Single requests on an idle server say nothing about peak-load latency; use this
-to catch broken configs (e.g. a stream interval that delays the first token)
+to catch broken configs (e.g. tool calls or streaming broken by a new flag)
 before spending a Validation submission.
 
 Usage:

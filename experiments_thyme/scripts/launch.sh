@@ -3,7 +3,7 @@
 # and save a run record (config, exact command, image digest, vLLM version, GPU
 # power settings) under experiments_thyme/results/runs/.
 #
-# Usage: experiments_thyme/scripts/launch.sh experiments_thyme/configs/T1_async_scheduling.conf
+# Usage: experiments_thyme/scripts/launch.sh experiments_thyme/configs/A00_stack.conf
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -24,6 +24,7 @@ if docker container inspect "$CONTAINER_NAME" >/dev/null 2>&1; then
   exit 1
 fi
 require_free_gpu
+require_power_limit
 
 mkdir -p "$HOME/.cache/huggingface"
 
@@ -43,6 +44,10 @@ DOCKER_CMD=(
 RUN_DIR="$THYME_DIR/results/runs/$(date -u +%Y%m%dT%H%M%SZ)_${CONFIG_NAME}"
 mkdir -p "$RUN_DIR"
 cp "$1" "$RUN_DIR/config.conf"
+# A-series configs build on a shared stack; keep the stack state of this run too.
+if [[ -f "$(dirname "$1")/_stack.conf" ]]; then
+  cp "$(dirname "$1")/_stack.conf" "$RUN_DIR/_stack.conf"
+fi
 printf '%q ' "${DOCKER_CMD[@]}" > "$RUN_DIR/command.txt"
 echo >> "$RUN_DIR/command.txt"
 
@@ -50,6 +55,8 @@ echo >> "$RUN_DIR/command.txt"
 
 {
   echo "config: $CONFIG_NAME"
+  echo "requested_power_limit_w: ${POWER_LIMIT_W:-default}"
+  echo "requested_gpu_clock_mhz: ${GPU_CLOCK_MHZ:-unlocked}"
   echo "started_utc: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
   echo "image: $IMAGE"
   echo "image_digests: $(docker image inspect --format '{{json .RepoDigests}}' "$IMAGE" 2>/dev/null || echo unknown)"
@@ -62,6 +69,6 @@ echo
 echo "Started $CONTAINER_NAME with config $CONFIG_NAME"
 echo "Run record: $RUN_DIR"
 echo "Follow startup:  docker logs -f $CONTAINER_NAME"
-echo "Save the startup log once ready (it shows cudagraph sizes, cache size, async scheduling):"
+echo "Save the startup log once ready (it shows CUDA graph capture, cache size, prefix caching status):"
 echo "  docker logs $CONTAINER_NAME > $RUN_DIR/startup.log 2>&1"
 echo "Endpoint: http://${BIND_ADDR}:${PORT}/v1"

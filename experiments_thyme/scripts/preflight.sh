@@ -3,11 +3,10 @@
 # Starts a throwaway container WITHOUT GPU access, so it is safe while another
 # server is running. Checks:
 #   1. every --flag in EXTRA_ARGS exists in `vllm serve --help=all`
-#   2. CompilationConfig fields used by T3 exist in this vLLM version
-#   3. the GPU is free and the port is not taken (warnings only)
-#   4. MAX_MODEL_LEN covers a 32K prompt + 8192 output tokens (warning only)
+#   2. the GPU is free and the port is not taken (warnings only)
+#   3. MAX_MODEL_LEN covers a 32K prompt + 8192 output tokens (warning only)
 #
-# Usage: experiments_thyme/scripts/preflight.sh experiments_thyme/configs/T1_async_scheduling.conf
+# Usage: experiments_thyme/scripts/preflight.sh experiments_thyme/configs/A00_stack.conf
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -43,15 +42,6 @@ for arg in ${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}; do
   fi
 done
 
-echo "== CompilationConfig fields (used by T3)"
-docker run --rm --entrypoint python3 "$IMAGE" -c '
-import dataclasses
-from vllm.config import CompilationConfig
-names = {f.name for f in dataclasses.fields(CompilationConfig)}
-for key in ("cudagraph_mode", "max_cudagraph_capture_size", "cudagraph_capture_sizes"):
-    print(("ok       " if key in names else "missing  ") + key)
-' || echo "warn     could not inspect CompilationConfig"
-
 echo "== GPU and port"
 if command -v nvidia-smi >/dev/null 2>&1; then
   apps="$(nvidia-smi --query-compute-apps=pid,process_name --format=csv,noheader)"
@@ -63,6 +53,7 @@ if command -v nvidia-smi >/dev/null 2>&1; then
   fi
   nvidia-smi --query-gpu=power.limit,clocks.applications.graphics --format=csv,noheader \
     | sed 's/^/info     power limit, app clock: /'
+  echo "info     config wants power ${POWER_LIMIT_W:-default}, clock ${GPU_CLOCK_MHZ:-unlocked} (apply-gpu-settings.sh sets both)"
 else
   echo "warn     nvidia-smi not found (not on the VM?)"
 fi
