@@ -1,0 +1,21 @@
+# final-run9: cold-start master profile
+# Cap seqs: 80 (prevents concurrency from blowing TPOT past 50 ms)
+# Budget: 4096 (prevents queue buildup on large prefills)
+# Power: 275W (golden balance between 31% energy savings and prefill compute speed)
+# Backend: FlashInfer (paged attention decode speed)
+# Memory: 0.92, Context: 40960, Hybrid Cache: align
+CMKL/MANGO1.5-Qwen3.5-9B-AWQ-W4A16-mtp
+--host 0.0.0.0
+--port 8000
+--served-model-name mango1.5-awq-w4a16
+--trust-remote-code
+--gpu-memory-utilization 0.92
+--max-model-len 40960
+--max-num-seqs 80
+--max-num-batched-tokens 4096
+--attention-backend FLASHINFER
+--enable-prefix-caching
+--mamba-cache-mode align
+--enable-auto-tool-choice
+--tool-call-parser qwen3_coder
+--reasoning-parser qwen3
