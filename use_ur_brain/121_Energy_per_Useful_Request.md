@@ -6,11 +6,15 @@
 Energy efficiency η is the number of SLO-met requests divided by the energy consumed over the official window; its inverse is the energy cost of one SLO-met request.
 
 ## Confirmed scoring constants
-| Constant | Value | Meaning |
+Only the Final counts, and its baseline is stricter. The worked numbers further down use the Validation baseline (0.00154).
+
+| Constant | Validation (practice) | **Final (graded)** |
 |---|---|---|
-| `η_base` | **0.00154 SLO-met requests/J** | baseline efficiency (≈ **649 J per SLO-met request**) |
-| `K` | **3×** | full energy marks at `η ≥ 3 × η_base` |
-| Full-marks target | **η ≥ 0.00462 SLO-met requests/J** | ≈ **216 J per SLO-met request** or less |
+| `η_base` | 0.00154 SLO-met requests/J (≈ 649 J per request) | **0.00163 SLO-met requests/J (≈ 613 J per request)** |
+| `K` | 3× | 3× |
+| Full-marks target | η ≥ 0.00462 (≈ 216 J per request) | **η ≥ 0.00489 (≈ 204 J per request)** |
+
+`s_E = clip(ln(η / η_base) / ln 3, 0, 1)` is confirmed on the grader page.
 
 ## Plain-English explanation
 This is the efficiency metric that matters: how many joules does it cost to deliver one request that met its SLOs? Requests that miss an SLO, error, or time out still burn energy but add nothing to the numerator, so they hurt twice.

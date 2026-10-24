@@ -11,9 +11,9 @@ If the energy score is clipped to [0, 1] and you're already at 1.0, cutting ener
 ## Technical depth
 - `s = min(max(raw, lo), hi)` — e.g., `clip(raw, 0, 1)`.
 - Saturation points create **flat regions** in the score landscape: zero marginal reward.
-- **Energy score (confirmed constants):** `η_base = 0.00154` SLO-met req/J and `K = 3`. With the inferred log form `s_E = clip(ln(η/η_base) / ln 3, 0, 1)`:
-  - **Floor:** `η ≤ 0.00154` (≥ 649 J per SLO-met request) gives `s_E = 0`, assuming below-baseline values clip to 0 (confirm).
-  - **Saturation:** `η ≥ 0.00462` (≤ 216 J per SLO-met request) gives `s_E = 1`. Further energy savings earn nothing.
+- **Energy score (confirmed):** `s_E = clip(ln(η/η_base) / ln 3, 0, 1)`, `K = 3`. On the **Final (graded)** `η_base = 0.00163`; on Validation it is `0.00154`.
+  - **Floor:** Final `η ≤ 0.00163` (≥ 613 J per SLO-met request) gives `s_E = 0` and therefore `S = 0`. This is how run4 full scored 0.0 on its Final at 0.92× baseline. Validation floor: `η ≤ 0.00154`.
+  - **Saturation:** Final `η ≥ 0.00489` (≤ 204 J per SLO-met request) gives `s_E = 1`. Validation: `η ≥ 0.00462` (≤ 216 J). Further energy savings earn nothing.
   - Between the two, the slope is steepest near baseline and flattens as you approach 3×.
 - Strategy: compute each component's position relative to its clip bounds; invest in components with the steepest remaining slope.
 - Clarify: are bounds inclusive? Is clipping applied before or after weighting/rounding?

@@ -13,14 +13,14 @@ Power is your car's speed; energy is the distance driven. A GPU at 300 W for 10 
 - Energy over an interval: `E = ∫ P(t) dt`.
 - With sampled telemetry: `E ≈ Σ P_i × Δt_i`.
 - With a steady average: `E ≈ P_avg × T`. Example: 250 W × 40 s = 10,000 J.
-- Energy per SLO-met request: `E / N_SLO-met`. For scale, the confirmed baseline efficiency is 0.00154 SLO-met requests/J, about **649 J per SLO-met request** (for example, 250 W for 2.6 s per request). Full energy marks require about **216 J** or less.
+- Energy per SLO-met request: `E / N_SLO-met`. For scale, the graded Final baseline is 0.00163 SLO-met requests/J, about **613 J per SLO-met request** (for example, 250 W for 2.5 s per request), and full energy marks need about **204 J** or less. The practice Validation baseline is 0.00154 (≈ 649 J; full marks ≈ 216 J).
 - Race-to-idle vs slow-and-steady: finishing faster at higher power can use fewer joules if the GPU then idles at low power (or if idle isn't counted); a power cap can lower joules if runtime doesn't grow much.
 
 ## Backend-engineer analogy
 Watts = cost per hour of an instance; joules = the total bill. A pricier instance that finishes the batch job in a third of the time can be cheaper overall.
 
 ## Why it matters for GreenMind
-The energy score is logarithmic against a confirmed baseline of 0.00154 SLO-met requests/J, saturating at 3×. It's computed from integrated energy over the official window and boundary. Instantaneous watt readings alone are misleading.
+The energy score is logarithmic against the track's baseline (Final 0.00163, Validation 0.00154 SLO-met requests/J), saturating at 3×. It's computed from integrated energy over the official window and boundary. Instantaneous watt readings alone are misleading.
 
 ## Common mistakes
 - Measuring instantaneous watts instead of integrated joules.

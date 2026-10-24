@@ -13,7 +13,7 @@ Score: `S = 100 · A · s_E^0.6 · s_T^0.2 · s_L^0.2` → **energy carries 60% 
 
 | | Value |
 |---|---|
-| Baseline efficiency (η_base) | 0.00163 SLO-met req/J (one source says 0.00154 — confirm) |
+| Baseline efficiency (η_base) | **Final 0.00163** SLO-met req/J (graded); Validation 0.00154 (practice). Confirmed on the grader page |
 | ≈ Baseline cost | ~615 J per good answer |
 | Full energy marks (3×) | ~205 J per good answer → **~61 kJ total** if all 300 pass |
 | A100 idle draw | ~50–57 W, and **idle counts** |

@@ -5,15 +5,16 @@ Every concept from `GreenMind_Inference_Optimization_Roadmap.md`, one file each,
 Each file has: one-sentence definition · plain-English explanation · technical depth · backend-engineer analogy · why it matters for GreenMind · common mistakes · related concepts.
 
 ## Confirmed scoring constants
-| Constant | Value | Implication |
-|---|---|---|
-| Baseline efficiency `η_base` | **0.00154 SLO-met requests/J** | ≈ 649 J per SLO-met request at baseline |
-| Energy saturation `K` | **3×** | full energy marks at η ≥ 0.00462 SLO-met req/J (≈ 216 J per request) |
-| Reference macro-accuracy | **87.2%** | retention = candidate macro-accuracy / 0.872 |
 
-Inferred (not confirmed) energy score form: `s_E = clip(ln(η / 0.00154) / ln 3, 0, 1)`. Main files: [Energy per Useful Request](121_Energy_per_Useful_Request.md), [Accuracy Retention](120_Accuracy_Retention_and_Relative_Loss.md), [Score Symbols](124_Score_Symbols_A_sE_sT_sL_S.md).
+**Only the Final test counts, and it has its own baseline.** Validation is a practice track for checking that the server works. Notes in this folder were written with the Validation numbers (0.00154, 87.2%); for anything graded, use the Final column.
 
-> Still unknown: the retention cutoff, the formula for the accuracy factor `A`, the throughput and latency score formulas, component weights, TTFT/TPOT limits, the five useful-request conditions, and the pitch weights. Files mark these as "verify in the briefing."
+| Constant | Validation (practice) | **Final (graded)** | Implication |
+|---|---|---|---|
+| Baseline efficiency `η_base` | 0.00154 SLO-met requests/J (≈ 649 J per request) | **0.00163 SLO-met requests/J (≈ 613 J per request)** | below it, `s_E = 0` and `S = 0` |
+| Energy saturation `K` | 3×: η ≥ 0.00462 (≈ 216 J per request) | **3×: η ≥ 0.00489 (≈ 204 J per request)** | full energy marks |
+| Reference macro-accuracy | 87.2% | **87.8%** | retention = candidate macro-accuracy / that reference |
+
+Confirmed formulas (grader page): `S = 100 · A · s_E^0.6 · s_T^0.2 · s_L^0.2`; `s_E = clip(ln(η / η_base) / ln 3, 0, 1)`; `A = smoothstep((R − 0.85) / 0.13)`, floor 0.05, with a family penalty below 75% of baseline; `s_T` = peak-phase SLO-met share; `s_L = √(min(1, 1/p95(TTFT/SLO)) · min(1, 50 ms / p95 TPOT))`. SLO-met = streamed, not truncated, TTFT ≤ 0.5 s + 0.25 s per 1k input tokens, TPOT ≤ 50 ms. Full detail: [`scoring_criteria.md`](../scoring_criteria.md). Main files: [Energy per Useful Request](121_Energy_per_Useful_Request.md), [Accuracy Retention](120_Accuracy_Retention_and_Relative_Loss.md), [Score Symbols](124_Score_Symbols_A_sE_sT_sL_S.md).
 
 ## Orientation
 1. [Inferencing](1_Inferencing.md)

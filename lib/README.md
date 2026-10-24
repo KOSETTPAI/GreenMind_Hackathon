@@ -11,9 +11,42 @@ Each later run is one change from its parent, taken from `GreenMind_Experimentat
 | `preflight_checks.py` | The checks. Also rejects a profile that breaks the endpoint contract |
 | `flag-check.sh` | Confirms every profile flag exists in `vllm serve --help`. Prints help only, so the running server keeps serving. Not during a graded window |
 | `warmup.py` | Grader-shaped warmup, including a two-turn tool call. Run after `READY`, before Submit, never during a graded window |
-| `watch.sh`, `summarize.py` | One-second telemetry and its summary. Validation only |
+| `watch.sh`, `summarize.py` | One-second telemetry and its summary. Validation only. `summarize.py` requires `--track final` or `--track validation`, which picks that track's baseline (Final 0.00163, Validation 0.00154) |
 | `power.sh` | One constant power limit. `run15` is the only run that should call it |
 | `check-external.ps1` | From a PC: TCP, `/models`, and one chat to the public IP |
+| `replay.py` | Final-shaped synthetic load: 300 requests, ramp to 4 req/s, a 45 s peak, then 1 req/s. Prompt and output sizes are sampled from our own server's `/metrics` histograms. Prints SLO-met, peak-phase SLO share, p95 TTFT ÷ SLO, p95 TPOT, joules and an estimated `S`, with A assumed 1. GPU workload: never during a Validation or Final. It aborts if the server already has running or waiting requests |
+
+## Current status (2026-10-24 19:10 UTC+7)
+
+| Run | Validation | Final |
+|---|---|---|
+| run4 full | 32.8 (50/100) | 0.0 (93/300) |
+| run5 | 35.6 (57/100) | none |
+| run6 | **95.6** (98/100) | **19.1** (127/300) |
+
+run6 holds on Validation and falls apart on the Final. The Final's peak drove 111 requests running at once against 35 on the Validation, and p95 TPOT rose from 18 ms to 82 ms. Diagnosis: [run6/ANALYSIS.md](../run6/ANALYSIS.md).
+
+run6 did not actually turn prefix caching off. This image enables it by default, and the default hit 87% (Validation) and 44% (Final) of prompt tokens. Profiles built on run6 keep it on.
+
+### Next runs (parent run6)
+
+| Run | Change from run6 | Launch guard | Purpose |
+|---|---|---|---|
+| [run16](../run16/README.md) | `--max-num-seqs 64` | none | Cap the decode batch so TPOT stays under 50 ms at the Final peak. **First choice** |
+| [run17](../run17/README.md) | `--max-num-seqs 96` | none | Looser cap, if 64 queues too much |
+| [run18](../run18/README.md) | cap 64 + `--long-prefill-token-threshold 2048` | `CONFIRM_R18=1` | Combined: cap plus long-prefill splitting for TTFT |
+| [run19](../run19/README.md) | cap 64 + MTP k=1 | `CONFIRM_R19=1` | Combined: more tokens per step. Reject if prefix hits collapse |
+
+Validation saturates at 98/100 and does not reach Final concurrency, so it cannot rank these. Use `replay.py` on each candidate with the same `--seed`, then spend a Final on the best:
+
+```bash
+REPLACE=1 ./run16/start.sh && python3 lib/warmup.py
+python3 lib/replay.py --label run16
+REPLACE=1 ./run6/start.sh && python3 lib/warmup.py      # same replay on the parent, for a baseline
+python3 lib/replay.py --label run6
+```
+
+The replay uses random words. Its prefix hits come only from `--reuse-prob`, and it has no agentic multi-turn episodes, so its absolute numbers will not equal the grader's. Use it to rank configurations against each other.
 
 ## Ladder
 

@@ -6,7 +6,9 @@
 Accuracy retention compares your candidate's macro-accuracy to the confirmed reference macro-accuracy of **87.2%**, and relative loss is how much was lost as a fraction of that reference.
 
 ## Confirmed scoring constant
-**Reference macro-accuracy = 87.2%.** This is the denominator for retention. The retention **cutoff** and the way retention maps to the accuracy factor `A` are still unknown.
+**Reference macro-accuracy = 87.8% on the Final (graded), 87.2% on Validation (practice).** It is the denominator for retention. The examples below use 87.2%; for the Final, divide by 0.878 instead.
+
+The mapping to `A` is now confirmed: `A = smoothstep((R − 0.85) / 0.13)`, 1 at `R ≥ 0.98` (≈ 86.0% macro-accuracy on Final, ≈ 85.5% on Validation), floor 0.05. A task family with ≥ 20 items under 75% of its baseline accuracy multiplies `A` by a smooth penalty (full at 75%, minimum at 50%).
 
 ## Plain-English explanation
 If your quantized server scores 85.0% macro-accuracy, you kept `85.0 / 87.2 = 97.5%` of the reference (retention) and lost 2.5% relative. The briefing has an accuracy-retention cutoff: fall below it and you're likely disqualified or heavily penalized.

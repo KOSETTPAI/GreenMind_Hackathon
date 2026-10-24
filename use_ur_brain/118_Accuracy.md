@@ -19,7 +19,7 @@ Speed means nothing if answers get worse. The grader checks outputs against expe
 Correctness tests in CI — a performance refactor that fails tests doesn't ship.
 
 ## Why it matters for GreenMind
-Accuracy feeds the accuracy-retention gate/factor, which can multiply or invalidate everything else. The confirmed reference is a **macro-accuracy of 87.2%**: your per-category accuracies are averaged and compared against it (see [Accuracy Retention](120_Accuracy_Retention_and_Relative_Loss.md)).
+Accuracy feeds the accuracy-retention gate/factor, which can multiply or invalidate everything else. The confirmed reference is a **macro-accuracy of 87.8% on the Final (graded)** and 87.2% on Validation (practice): your per-category accuracies are averaged and compared against it (see [Accuracy Retention](120_Accuracy_Retention_and_Relative_Loss.md)).
 
 ## Common mistakes
 - Checking only aggregate accuracy.

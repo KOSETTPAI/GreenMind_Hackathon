@@ -9,15 +9,17 @@ Run them on the Ubuntu VM. This repository does not start Docker from the author
 ```
 S = 100 · A · s_E^0.6 · s_T^0.2 · s_L^0.2
 η = SLO-met requests / GPU joules
-s_E = clip( ln(η / 0.00154) / ln 3 , 0, 1 )
+s_E = clip( ln(η / η_base) / ln 3 , 0, 1 )
 ```
 
-| Constant | Value |
-|---|---|
-| Baseline efficiency `η_base` | `0.00154` SLO-met requests/J |
-| Full energy marks | `η ≥ 0.00462` (3×, about 216 J per SLO-met request) |
-| Reference macro-accuracy | `87.2%` |
-| Full `A` before a class penalty | retention `≥ 0.98`, about `85.5%` macro-accuracy |
+Only the Final counts, and it has its own baseline. Never mix the two.
+
+| Constant | Validation (practice) | **Final (graded)** |
+|---|---|---|
+| Baseline efficiency `η_base` | `0.00154` SLO-met requests/J | **`0.00163`** SLO-met requests/J |
+| Full energy marks (3×) | `η ≥ 0.00462`, about 216 J per SLO-met request | **`η ≥ 0.00489`**, about 204 J per SLO-met request |
+| Reference macro-accuracy | `87.2%` | **`87.8%`** |
+| Full `A` before a class penalty | retention `≥ 0.98`, about `85.5%` | retention `≥ 0.98`, about `86.0%` |
 | TTFT SLO | `0.5 + 0.25 × prompt_tokens / 1000` seconds |
 | TPOT SLO | `50 ms`, skipped for one-token answers |
 | Peak used for `s_T` | constant 4 requests/second |
@@ -25,7 +27,7 @@ s_E = clip( ln(η / 0.00154) / ln 3 , 0, 1 )
 
 `s_T` and `s_L` saturate at 1. Energy has exponent 0.6. Idle joules count. A missed SLO still adds joules and adds nothing to the numerator of `η`.
 
-Use `0.00154` and `87.2%`. An older header of `0.00163` and `87.8%` is still mentioned in `Score_Improvement_Ranking.md` and `approach/1_Baseline_and_Measurement_Prerequisite.md`. `scoring_criteria.md` says that pair is not the live page.
+Both pairs are on the live grader page: `0.00154` / `87.2%` for Validation, `0.00163` / `87.8%` for the Final. Validation only checks that a server works. Its 100-request load never reaches the Final's peak concurrency, so a high Validation score does not predict the Final (run6: 95.6 Validation, 19.1 Final).
 
 V0, from the defaults in `scripts/start-vllm.sh`:
 

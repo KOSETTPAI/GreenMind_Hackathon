@@ -6,7 +6,7 @@
 Score-aware decision making means choosing configurations by their effect on the official score — including gates, useful requests, and energy — not by a single speed metric.
 
 ## Plain-English explanation
-Worked example using the confirmed energy constants (`η_base = 0.00154` SLO-met req/J, `K = 3`). The workload numbers are invented, scaled to be realistic for one A100: the same 1,000-request workload in both runs.
+Worked example using the Validation energy constants (`η_base = 0.00154` SLO-met req/J, `K = 3`). For a graded decision use the Final baseline, `η_base = 0.00163`, and judge on Final results: Validation scores do not predict the Final. The workload numbers are invented, scaled to be realistic for one A100: the same 1,000-request workload in both runs.
 
 | Metric | Candidate X | Candidate Y |
 |---|---:|---:|
@@ -26,7 +26,7 @@ Neither candidate is close to full energy marks (3×, or 0.00462 SLO-met req/J).
 **Decision checklist for every candidate:**
 1. Passes all hard gates (accuracy retention, API correctness, stability) with margin?
 2. SLO pass rate / useful requests ≥ best-known?
-3. η vs best-known and vs `η_base = 0.00154` (is `s_E` already saturated at ≥ 3×, i.e., ≥ 0.00462)?
+3. η vs best-known and vs the track's `η_base` (Final 0.00163, saturated at ≥ 0.00489; Validation 0.00154, saturated at ≥ 0.00462)?
 4. Each component score (`s_E`, `s_T`, `s_L`, `A`) and final S — median over repetitions.
 5. Improvement larger than run-to-run noise?
 6. Per-category regressions?

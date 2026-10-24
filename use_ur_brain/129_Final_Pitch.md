@@ -14,7 +14,7 @@ Judges want a clear engineering story, not just a number. Show you understood th
 3. **Bottleneck evidence** — profiling/telemetry showing what limits performance (e.g., decode bandwidth-bound, prefill interference driving p95 TTFT).
 4. **Hypotheses & controlled experiments** — one change at a time, results table with medians and spread.
 5. **Final configuration** — what changed and why.
-6. **Results**: every score component, SLO pass rate, and accuracy per category. Express them against the confirmed references: macro-accuracy vs 87.2% (retention), and η vs 0.00154 SLO-met requests/J (for example, "2.1× baseline efficiency, s_E ≈ 0.68; full marks at 3×").
+6. **Results**: every score component, SLO pass rate, and accuracy per category. Express them against the Final references, because only the Final is graded: macro-accuracy vs 87.8% (retention), and η vs 0.00163 SLO-met requests/J (for example, "2.1× the Final baseline, s_E ≈ 0.68; full marks at 3×"). Quote Validation numbers only as practice-track checks, against 87.2% and 0.00154.
 7. **Trade-offs & limitations** — what got worse, what's uncertain, what you'd do with more time.
 8. **Reproducibility** — launch script, hashes, environment.
 

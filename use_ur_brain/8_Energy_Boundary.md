@@ -19,7 +19,7 @@ This matters because some optimizations move work between components: e.g., shif
 Like cost allocation: is the "cost of the service" just the compute instance, or does it include the database, network egress, and load balancer?
 
 ## Why it matters for GreenMind
-If only GPU energy counts, GPU efficiency (SLO-met requests per GPU joule) is king. The confirmed baseline is 0.00154 SLO-met requests/J, with full marks at 3× (0.00462). Your measured η is only comparable to those numbers if you use the grader's exact boundary. Also, GPU idle power (~50–60 W on an A100) during quiet periods may be counted, which sets an energy floor that limits how close to 3× you can get.
+If only GPU energy counts, GPU efficiency (SLO-met requests per GPU joule) is king. The graded Final baseline is 0.00163 SLO-met requests/J, with full marks at 3× (0.00489). Validation uses 0.00154 (full marks 0.00462). The grader confirms the boundary: GPU board energy from the NVML total-energy counter only. Your measured η is only comparable to those numbers if you use the grader's exact boundary. Also, GPU idle power (~50–60 W on an A100) during quiet periods may be counted, which sets an energy floor that limits how close to 3× you can get.
 
 ## Common mistakes
 - Substituting total-system energy for GPU energy, or vice versa.

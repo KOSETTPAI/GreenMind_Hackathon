@@ -59,7 +59,8 @@ The main goal is therefore not merely fewer watts. It is **more requests meeting
 - `s_E`: energy efficiency, computed from SLO-met requests divided by total GPU joules across the measured window.
 - `s_T`: share of peak-phase arrivals that meet SLO.
 - `s_L`: composite score from p95 TTFT relative to each prompt's allowed TTFT and p95 TPOT relative to 50 ms.
-- The Final baseline is harder than the Validation baseline in the recorded briefing, so keep each track's baseline constants separate.
+- **Only the Final counts.** Final: `η_base = 0.00163`, reference macro-accuracy 87.8%. Validation (practice, for checking the server works): `η_base = 0.00154`, 87.2%. Keep each track's constants separate.
+- **Validation does not predict the Final.** run6 scored 95.6 on Validation (peak 35 running, p95 TPOT 18 ms) and 19.1 on Final (peak 111 running, p95 TPOT 82 ms). Rank configurations on Final results or a Final-shaped replay, not on Validation.
 
 ### 1.4 What an SLO-met request must satisfy
 

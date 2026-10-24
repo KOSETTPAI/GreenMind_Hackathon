@@ -4,7 +4,7 @@ Every optimization we considered, one file each. **File number = rank**, from 1 
 
 > One Validation has been scored. File numbers stay the original ranking. The **run order below replaces that ranking** until SLO-met is high. Command sections in each file are still untested except the defaults that produced V0. Check new flag names with `vllm serve --help` on the VM.
 
-Score: `S = 100 · A · s_E^0.6 · s_T^0.2 · s_L^0.2`. Active baseline: `η_base = 0.00154`, reference macro-accuracy `87.2%`, full energy marks at 3×. Background: [Score_Improvement_Ranking.md](../Score_Improvement_Ranking.md) · [scoring_criteria.md](../scoring_criteria.md) · [experiments/log.md](../experiments/log.md).
+Score: `S = 100 · A · s_E^0.6 · s_T^0.2 · s_L^0.2`. Baselines differ by track. **Final (graded, the only one that counts): `η_base = 0.00163`, macro-accuracy `87.8%`.** Validation (practice): `0.00154`, `87.2%`. Full energy marks at 3× on both. Background: [Score_Improvement_Ranking.md](../Score_Improvement_Ranking.md) · [scoring_criteria.md](../scoring_criteria.md) · [experiments/log.md](../experiments/log.md).
 
 **V0 (indicative):** `scripts/start-vllm.sh` defaults, `S = 34.8`, SLO-met `56/100`. The checkpoint is already `CMKL/MANGO1.5-Qwen3.5-9B-AWQ-W4A16-mtp`. Approach 3 is adopted, not the next run. A power cap (approach 2) waits until SLO-met is at least 90/100, because a slower decode would fail more of the 50 ms TPOT checks and shrink the numerator of `η`.
 

@@ -5,7 +5,7 @@
 #
 #   ./run4/watch.sh                     # writes into ~/greenmind-runs/latest/
 #   ./run4/watch.sh path/to/out.csv
-# Then: python3 run4/summarize.py ~/greenmind-runs/latest/telemetry.csv --slo-met N
+# Then: python3 lib/summarize.py ~/greenmind-runs/latest/telemetry.csv --slo-met N --track final|validation
 set -Eeuo pipefail
 
 [[ -f /.dockerenv ]] && { echo "Run on the VM host." >&2; exit 1; }

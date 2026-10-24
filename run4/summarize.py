@@ -6,14 +6,16 @@ driver reports it, otherwise from integrated power. The CSV window is wherever
 watch.sh was started and stopped, not the grader's timed window, so treat the
 joules as a comparison between runs, not the graded number.
 
-  python3 run4/summarize.py telemetry.csv [--slo-met 87]
+  python3 run4/summarize.py telemetry.csv --slo-met 127 --track final
+  python3 run4/summarize.py telemetry.csv --slo-met 98 --track validation
 """
 
 import argparse
 import csv
 import math
 
-ETA_BASE = 0.00154
+# Each grader track has its own baseline. Only the Final counts.
+ETA_BASE = {"final": 0.00163, "validation": 0.00154}
 
 
 def num(v):
@@ -32,6 +34,8 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("csv_path")
     ap.add_argument("--slo-met", type=int, help="SLO-met count from grader History")
+    ap.add_argument("--track", choices=sorted(ETA_BASE), required=True,
+                    help="grader track the run was scored on; picks that track's baseline")
     args = ap.parse_args()
 
     with open(args.csv_path, newline="") as fh:
@@ -91,9 +95,10 @@ def main():
         print("MTP acceptance     no drafts recorded (off, or metric absent)")
 
     if args.slo_met:
+        base = ETA_BASE[args.track]
         eta = args.slo_met / energy_j
-        s_e = min(1.0, max(0.0, math.log(eta / ETA_BASE) / math.log(3)))
-        print(f"eta (this window)  {eta:.5f} SLO-met/J = {eta / ETA_BASE:.2f}x baseline, s_E ~ {s_e:.2f}")
+        s_e = min(1.0, max(0.0, math.log(eta / base) / math.log(3)))
+        print(f"eta (this window)  {eta:.5f} SLO-met/J = {eta / base:.2f}x the {args.track} baseline ({base}), s_E ~ {s_e:.2f}")
         print("                   Indicative only: the grader's window and joules are authoritative.")
 
 

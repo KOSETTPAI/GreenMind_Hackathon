@@ -12,8 +12,8 @@
 
 | Reference | Value | Note |
 |---|---|---|
-| `η_base` | 0.00154 or 0.00163 SLO-met req/J | `scoring_criteria.md` lists both; confirm with organizers |
-| Reference macro-accuracy | 87.2% or 87.8% | same discrepancy |
+| `η_base` | **Final 0.00163**, Validation 0.00154 SLO-met req/J | Both on the live grader page. Only the Final counts |
+| Reference macro-accuracy | **Final 87.8%**, Validation 87.2% | Same split |
 | Round cap | 30 minutes | unfinished requests count as failed |
 | Energy source | NVML counter, idle included | |
 

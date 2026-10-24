@@ -39,7 +39,7 @@ Energy carries exponent 0.6, so `η` dominates. The untuned BF16 baseline scores
 | Reference macro-accuracy | 87.2% | 87.8% |
 | Full energy marks (3×) | ≈ 216 J per SLO-met request | ≈ 204 J per SLO-met request |
 
-The Final baseline is about 6% harder than the Validation one.
+The Final baseline is about 6% harder than the Validation one. **Only the Final counts.** Validation is a practice track for checking that a server works, and its score does not predict the Final: run6 scored 95.6 on Validation and 19.1 on Final, because the Final's longer peak drove concurrency from 35 to 111 running requests and p95 TPOT from 18 ms to 82 ms.
 
 ### What counts as SLO-met
 
@@ -350,7 +350,7 @@ Not worth trying now: `--max-num-seqs` caps (TTFT is the problem, and a cap adds
    ./run4/watch.sh        # second shell, Validation only
    ```
 
-5. Submit one Validation. Afterwards, run `python3 run4/summarize.py ~/greenmind-runs/latest/telemetry.csv --slo-met <N>` and log the History row and summary in `run4/log.md`.
+5. Submit one Validation. Afterwards, run `python3 run4/summarize.py ~/greenmind-runs/latest/telemetry.csv --slo-met <N> --track validation` and log the History row and summary in `run4/log.md`.
 
 ### Decision rules
 

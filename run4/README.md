@@ -52,7 +52,7 @@ A later standalone `./run4/preflight.sh` picks the tier and bind from the contai
 After the grader finishes:
 
 ```bash
-python3 run4/summarize.py ~/greenmind-runs/latest/telemetry.csv --slo-met <SLO-met from History>
+python3 run4/summarize.py ~/greenmind-runs/latest/telemetry.csv --slo-met <SLO-met from History> --track validation   # or final
 ```
 
 Copy the History row and the summary into [log.md](log.md).

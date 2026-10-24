@@ -6,29 +6,33 @@
 These are the event-specific score symbols: accuracy factor (A), energy score (s_E), throughput score (s_T), latency score (s_L), and final technical score (S). Some constants are now confirmed; the rest must still come from the official briefing.
 
 ## Confirmed scoring constants
-| Constant | Value | Used by |
-|---|---|---|
-| `η_base` | **0.00154 SLO-met requests/J** | `s_E` (baseline efficiency) |
-| `K` | **3×** (full energy marks at `η ≥ 0.00462` SLO-met req/J) | `s_E` (saturation point) |
-| Reference macro-accuracy | **87.2%** | `A` (accuracy retention reference) |
+Only the Final counts, and it has its own baseline.
+
+| Constant | Validation (practice) | **Final (graded)** | Used by |
+|---|---|---|---|
+| `η_base` | 0.00154 SLO-met requests/J | **0.00163 SLO-met requests/J** | `s_E` (baseline efficiency) |
+| `K` | 3× (full marks at `η ≥ 0.00462`) | **3× (full marks at `η ≥ 0.00489`)** | `s_E` (saturation point) |
+| Reference macro-accuracy | 87.2% | **87.8%** | `A` (accuracy retention reference) |
+
+All five formulas are now confirmed on the grader page; see [`scoring_criteria.md`](../scoring_criteria.md). The "still to verify" column below predates that.
 
 ## Status of each symbol
 | Symbol | Meaning | Confirmed | Still to verify |
 |---|---|---|---|
 | `A` | Accuracy factor from macro-accuracy retention | reference = 87.2% macro-accuracy | retention cutoff, formula shape, floors, clipping |
-| `s_E` | Energy score (logarithmic) | `η_base = 0.00154`, `K = 3`, efficiency measured in SLO-met requests/J | exact expression (inferred below), behavior below baseline |
+| `s_E` | Energy score (logarithmic) | `η_base` = 0.00163 Final / 0.00154 Validation, `K = 3`, efficiency measured in SLO-met requests/J | exact expression (inferred below), behavior below baseline |
 | `s_T` | Throughput score | — | normalizer, cap, whether SLO failures count |
 | `s_L` | Latency score | — | how TTFT/TPOT/p95 combine, normalization |
 | `S` | Final technical score | — | equation, weights, gates, rounding order |
 | Pitch/final ranking | Weighted technical + pitch criteria | — | criteria, weights, tie-breaks, eligibility |
 
 ## Technical depth
-**Energy score (inferred form, consistent with the confirmed constants):**
+**Energy score (confirmed on the grader page):**
 ```
 η   = N_SLO-met / E_J
-s_E = clip( ln(η / 0.00154) / ln(3), 0, 1 )
+s_E = clip( ln(η / η_base) / ln(3), 0, 1 )     η_base = 0.00163 Final, 0.00154 Validation
 ```
-- `s_E = 0` at baseline efficiency and `s_E = 1` at 3× baseline (0.00462 SLO-met req/J ≈ 216 J per request).
+- `s_E = 0` at baseline efficiency and `s_E = 1` at 3× baseline (Final: 0.00489 SLO-met req/J ≈ 204 J per request; Validation: 0.00462 ≈ 216 J).
 - Each doubling of η is worth `ln 2 / ln 3 ≈ 0.63` of the component, until it saturates.
 
 **Accuracy:**

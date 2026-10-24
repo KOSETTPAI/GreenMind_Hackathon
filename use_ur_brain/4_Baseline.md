@@ -13,11 +13,13 @@ There are two baselines to keep in mind:
 2. **Your reproduced baseline** — what you measure on your hardware with your harness. If you can't reproduce the official numbers, your measurements aren't trustworthy yet.
 
 ## Confirmed official reference values
-| Reference | Value |
-|---|---|
-| Baseline energy efficiency `η_base` | **0.00154 SLO-met requests/J** (≈ 649 J per SLO-met request) |
-| Full energy marks | **K = 3×** baseline → η ≥ 0.00462 SLO-met requests/J (≈ 216 J per request) |
-| Reference macro-accuracy | **87.2%** |
+The two grader tracks have different baselines. Only the Final counts.
+
+| Reference | Validation (practice) | **Final (graded)** |
+|---|---|---|
+| Baseline energy efficiency `η_base` | 0.00154 SLO-met requests/J (≈ 649 J per request) | **0.00163 SLO-met requests/J (≈ 613 J per request)** |
+| Full energy marks (`K = 3×`) | η ≥ 0.00462 (≈ 216 J per request) | **η ≥ 0.00489 (≈ 204 J per request)** |
+| Reference macro-accuracy | 87.2% | **87.8%** |
 
 Your reproduced baseline should land near these values. If it doesn't, your harness, energy boundary, measurement window, or accuracy judge probably differs from the grader's. Fix that before tuning anything.
 
@@ -30,8 +32,8 @@ Run it multiple times to learn the **noise floor** — the variation between ide
 Like capturing a performance baseline before a refactor: same load test, same hardware, same build — otherwise your before/after comparison is meaningless.
 
 ## Why it matters for GreenMind
-- Accuracy retention = candidate macro-accuracy / 87.2%.
-- Energy score uses baseline efficiency (0.00154 SLO-met req/J) as its zero point and 3× that as full marks.
+- Accuracy retention = candidate macro-accuracy / 87.8% on the Final (87.2% on Validation).
+- Energy score uses the track's baseline efficiency as its zero point and 3× that as full marks: 0.00163 SLO-met req/J on the Final, 0.00154 on Validation.
 - Without a solid baseline, you can't tell whether a flag change helped or whether the GPU was just cooler that run.
 
 ## Common mistakes

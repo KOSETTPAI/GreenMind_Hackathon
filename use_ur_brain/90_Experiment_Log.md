@@ -14,8 +14,8 @@ ID · date · code commit · model hash · engine version · config diff · hypo
 
 **Columns derived from the confirmed scoring constants:**
 - `macro_acc`, `retention = macro_acc / 0.872`
-- `SLO_met`, `E_J`, `η = SLO_met / E_J`, `η / 0.00154`
-- `s_E = clip(ln(η / 0.00154) / ln 3, 0, 1)` (inferred form; flag it as such until you confirm it)
+- `track` (Validation or Final), `SLO_met`, `E_J`, `η = SLO_met / E_J`, `η / η_base` with the track's own baseline (Final 0.00163, Validation 0.00154)
+- `s_E = clip(ln(η / η_base) / ln 3, 0, 1)` (confirmed on the grader page)
 - `energy_saturated = η ≥ 0.00462`
 
 **Tips:**

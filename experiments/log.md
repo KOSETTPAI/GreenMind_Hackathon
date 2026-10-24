@@ -2,9 +2,14 @@
 
 Score: `S = 100 · A · s_E^0.6 · s_T^0.2 · s_L^0.2`.
 
-`η = SLO-met / joules`, `η_base = 0.00154`, `s_E = clip(ln(η / 0.00154) / ln 3, 0, 1)`.
+`η = SLO-met / joules`, `s_E = clip(ln(η / η_base) / ln 3, 0, 1)`. Full `A` before the class factor starts at `R ≥ 0.98`.
 
-Reference macro-accuracy `87.2%`. Retention `R = macro-accuracy / 0.872`. Full `A` before the class factor starts at `R ≥ 0.98`.
+| Track | `η_base` | Reference macro-accuracy | Retention `R` |
+|---|---|---|---|
+| Validation (practice) | 0.00154 | 87.2% | macro-accuracy / 0.872 |
+| **Final (graded, the only one that counts)** | **0.00163** | **87.8%** | macro-accuracy / 0.878 |
+
+Every row below is a Validation row, so its `η / 0.00154` column uses the Validation baseline.
 
 Blank cells are not zeros. Copy them from grader History.
 

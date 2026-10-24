@@ -1,0 +1,25 @@
+---
+description: GreenMind grader scoring. Validation and Final use different baselines; only Final counts.
+alwaysApply: true
+---
+
+# Grader scoring (verified on the live grader page, 2026-10-24)
+
+**Only the Final test counts.** Validation is a practice track. Use it to check that a server works, not to rank configurations.
+
+| | Validation (100 requests) | **Final (300 requests, graded)** |
+|---|---|---|
+| `η_base` (SLO-met requests/J) | 0.00154 | **0.00163** |
+| Reference macro-accuracy | 87.2% | **87.8%** |
+| Full energy marks (`K = 3×`) | η ≥ 0.00462 (≈ 216 J per SLO-met request) | **η ≥ 0.00489 (≈ 204 J per SLO-met request)** |
+
+Never compute a Final score, retention or `s_E` with the Validation constants, or the reverse. Name the track next to every η, `s_E` or retention you report.
+
+- `S = 100 · A · s_E^0.6 · s_T^0.2 · s_L^0.2`. Ties: higher retention R, then lower p95 TTFT.
+- `A`: `R = macro-accuracy / track baseline`; `A = smoothstep((R − 0.85) / 0.13)`, 1 at R ≥ 0.98, floor 0.05. A task family with ≥ 20 items under 75% of baseline accuracy multiplies A by a smooth penalty (full at 75%, minimum at 50%).
+- `s_E = clip(ln(η / η_base) / ln 3, 0, 1)`, `η = SLO-met / GPU joules over the timed window`. Below the track baseline `s_E = 0`, so `S = 0`.
+- SLO-met: streamed, finished (not truncated), TTFT ≤ 0.5 s + 0.25 s per 1k input tokens, TPOT ≤ 50 ms.
+- `s_T`: share of peak-phase requests that met SLO. `s_L = √(min(1, 1/p95(TTFT/SLO)) · min(1, 50 ms / p95 TPOT))`.
+- Energy: GPU board energy from the NVML total-energy counter only (no CPU/DRAM/PDU).
+
+A Validation score does not predict the Final. run6 scored 95.6 on Validation (35 peak running, p95 TPOT 18 ms) and 19.1 on Final (111 peak running, p95 TPOT 82 ms). Judge a candidate by Final results or a Final-shaped replay (`lib/replay.py --track final`).

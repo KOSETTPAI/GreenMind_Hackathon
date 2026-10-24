@@ -20,8 +20,10 @@ The factors multiply. Energy has the largest exponent. Throughput and latency sa
 
 | Track | Requests | Purpose | Counts toward the graded result? |
 |---|---:|---|---|
-| Validation | 100 | Practice and iteration. The score is indicative only. | No |
-| Final Test | 300 | One graded evaluation round. | Yes. Final is the only graded result. |
+| Validation | 100 | Practice track. Checks that the server works. The score is indicative only. | No |
+| Final Test | 300 | The graded evaluation round. | **Yes. Only the Final counts.** |
+
+**Validation does not predict the Final.** The Final's longer 4 requests/s peak builds far more concurrency. run6 scored 95.6 on Validation (peak 35 running, p95 TPOT 18 ms, 98/100 SLO-met) and 19.1 on Final (peak 111 running, p95 TPOT 82 ms, 127/300 SLO-met). Use Validation to confirm a server answers correctly, and rank configurations on Final results or a Final-shaped replay.
 
 - Each round is capped at 30 minutes.
 - Requests unfinished at the cap count as failed.
@@ -32,16 +34,26 @@ The factors multiply. Energy has the largest exponent. Throughput and latency sa
 
 The baseline is the untuned model served with default vLLM in BF16.
 
-The live grader page shows one baseline for this event:
+**The two tracks use different baselines.** Both are shown on the live grader page (confirmed 2026-10-24). Never mix them.
 
-| Parameter | Active value |
-|---|---|
-| Baseline energy efficiency (`η_base`) | `0.00154` SLO-met requests/J |
-| Energy multiplier for full marks (`K`) | `3×` |
-| Full energy marks | `η ≥ 0.00462` (about 216 J per SLO-met request) |
-| Reference macro-accuracy | `87.2%` |
+| Parameter | Validation (practice) | **Final (graded)** |
+|---|---|---|
+| Baseline energy efficiency (`η_base`) | `0.00154` SLO-met requests/J | **`0.00163` SLO-met requests/J** |
+| Energy multiplier for full marks (`K`) | `3×` | `3×` |
+| Full energy marks | `η ≥ 0.00462` (about 216 J per SLO-met request) | **`η ≥ 0.00489` (about 204 J per SLO-met request)** |
+| Reference macro-accuracy | `87.2%` | **`87.8%`** |
+| Full `A` (`R ≥ 0.98`) needs macro-accuracy of | about 85.5% | **about 86.0%** |
 
-An earlier note of the Final header used `0.00163` SLO-met requests/J and `87.8%` macro-accuracy. That pair is not the live page. Use `0.00154` and `87.2%` unless a Final page shows the other pair again.
+The Final baseline is about 6% harder on energy and slightly harder on accuracy. The same server at the same efficiency gets a lower `s_E` on Final: 1.38× on Validation is only about 1.30× on Final.
+
+Grader wording for the columns, identical on both pages:
+
+- **Score S**: `100 · A · sE^0.6 · sT^0.2 · sL^0.2`. Ties: higher retention R, then lower p95 TTFT.
+- **A (accuracy gate)**: `R = macro-accuracy ÷ the baseline's macro-accuracy`; `A = smoothstep((R − 0.85) ÷ 0.13)`: 1 at R ≥ 0.98, fading smoothly below it, floor 0.05. A task family (≥ 20 items) keeping under 75% of the baseline's accuracy multiplies A by a smooth penalty (full at 75%, minimum at 50%).
+- **sE (energy)**: `η = SLO-met requests ÷ GPU joules over the timed window`; `sE = clip(ln(η ÷ ηbase) ÷ ln K, 0, 1)`. A request counts only if it streamed, finished (not truncated), TTFT ≤ 0.5 s + 0.25 s per 1k input tokens and TPOT ≤ 50 ms.
+- **sT (throughput)**: share of peak-phase requests that met their SLO.
+- **sL (latency)**: `√(min(1, 1 ÷ p95 TTFT/SLO) · min(1, 50 ms ÷ p95 TPOT))`.
+- **Energy**: GPU board energy from the NVML total-energy counter (CPU/DRAM RAPL and BMC/PDU are not readable on these VMs).
 
 Energy efficiency:
 
@@ -54,8 +66,11 @@ Energy efficiency:
 - Full energy marks are `3×` baseline efficiency.
 
 ```
-s_E = clip( ln(η / 0.00154) / ln 3 , 0, 1 )
+Final:      s_E = clip( ln(η / 0.00163) / ln 3 , 0, 1 )
+Validation: s_E = clip( ln(η / 0.00154) / ln 3 , 0, 1 )
 ```
+
+The ratio table below applies to either track, as a multiple of that track's own baseline.
 
 | Efficiency relative to baseline | Energy score (`s_E`) |
 |---|---:|
@@ -85,7 +100,8 @@ Failed, late, and cut-off requests still add joules and add nothing to the numer
 ## 5. Accuracy factor (`A`)
 
 ```
-R = your macro-accuracy / 0.872
+R = your macro-accuracy / 0.878     (Final)
+R = your macro-accuracy / 0.872     (Validation)
 x = clip( (R - 0.85) / 0.13 , 0, 1 )
 smoothstep(x) = 3x^2 - 2x^3
 A = max( 0.05, smoothstep(x) × c_f )
@@ -102,7 +118,7 @@ The grader's History page words the class rule as: a **task family** with at lea
 
 Ties are broken by higher retention `R`, then lower p95 TTFT.
 
-- `R ≥ 0.98` gives `A = 1` before a class penalty. That is macro-accuracy of about `85.5%`.
+- `R ≥ 0.98` gives `A = 1` before a class penalty. That is macro-accuracy of about `86.0%` on Final (`0.98 × 87.8%`) and about `85.5%` on Validation (`0.98 × 87.2%`).
 - `R ≤ 0.85` reaches the floor `A = 0.05`. The factor is never exactly 0 from the retention curve alone.
 - A class with at least 20 questions and retention under 75% of its own baseline applies `c_f`. The class factor is 1 at 75% retention and 0 at 50% retention.
 - Beating the reference macro-accuracy does not add points.
@@ -144,7 +160,19 @@ S = 100 · A · s_E^0.6 · s_T^0.2 · s_L^0.2
 4. Idle joules count, so a shorter busy window matters, not a lower watt reading by itself.
 5. A power cap that pushes TPOT over 50 ms shrinks the numerator of `η`. Cap power only after SLO-met is already high.
 
-## 9. Measured starting point
+## 9. Measured results
+
+| Run | Track | Baseline used | `S` | SLO-met | η vs that baseline | p95 TTFT | p95 TPOT | Peak running |
+|---|---|---|---:|---:|---:|---:|---:|---:|
+| run4 full | Final | 0.00163 | 0.0 | 93/300 | 0.92× | 3.59 s | 91 ms | n/a |
+| run4 full | Validation | 0.00154 | 32.8 | 50/100 | 1.38× | 3.12 s | 55 ms | n/a |
+| run5 | Validation | 0.00154 | 35.6 | 57/100 | 1.41× | 2.47 s | 55 ms | 66 |
+| run6 | Validation | 0.00154 | 95.6 | 98/100 | 2.78× | 0.16 s | 18 ms | 35 |
+| run6 | **Final** | **0.00163** | **19.1** | 127/300 | 1.18× | 2.16 s | 82 ms | 111 |
+
+run6 shows why only the Final can rank configurations. Details: `run6/ANALYSIS.md`.
+
+### Earliest Validation (V0)
 
 Indicative Validation of the defaults in `scripts/start-vllm.sh` (AWQ W4A16 checkpoint, speculative decoding off, `max_model_len` 32768, GPU memory utilization 0.85):
 
@@ -162,6 +190,6 @@ The E1 Validation (2026-10-24 07:56:39 UTC, V0 plus `--max-model-len 40960`) sho
 
 - How the 0.05 accuracy floor combines with the family penalty. The History page calls 50% retention the penalty's "minimum", not zero.
 - Whether "task family" means the six briefing classes or the finer task-id families, and how families under 20 items affect `c_f`.
-- Whether a future Final page replaces `0.00154` / `87.2%` with another header.
+- Whether a page header changes again. Check the baseline line at the top of each History page before recording a row.
 
 The image digest of `vllm/vllm-openai:nightly` for the 34.8 run was not recorded. Record it on the VM before comparing later runs.

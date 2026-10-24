@@ -15,11 +15,13 @@ The grader doesn't reward "work done," it rewards "work that was good enough." A
 
 **These are guesses — fill in the real five from the briefing.**
 
-**Confirmed:** the energy score counts **SLO-met requests**. Efficiency is `η = SLO-met requests / J`, with baseline `η_base = 0.00154` and full marks at 3× (`0.00462`).
+**Confirmed:** the energy score counts **SLO-met requests**. Efficiency is `η = SLO-met requests / J`. On the **Final (graded)**, `η_base = 0.00163` with full marks at 3× (`0.00489`). On Validation (practice) it is `0.00154` and `0.00462`.
+
+**Confirmed five conditions (grader page):** streamed; no error or timeout; not truncated at 8,192 output tokens; TTFT ≤ 0.5 s + 0.25 s per 1k input tokens; TPOT ≤ 50 ms (skipped for one-token answers). The list below predates that confirmation.
 
 ## Technical depth
 - **Useful throughput** = `N_useful / window_duration`.
-- **Energy efficiency (scored)** = `η = N_SLO-met / E_J`. Baseline is 0.00154 (≈ 649 J per SLO-met request). Failed requests still consume energy but add nothing to the numerator, so they hurt twice.
+- **Energy efficiency (scored)** = `η = N_SLO-met / E_J`. Final baseline 0.00163 (≈ 613 J per SLO-met request); Validation 0.00154 (≈ 649 J). Failed requests still consume energy but add nothing to the numerator, so they hurt twice.
 - **Energy per SLO-met request** = `E_J / N_SLO-met = 1/η`.
 - Example: anywhere between baseline and 3×, losing 50 SLO-met requests out of 1,000 lowers η by 5%, which costs about 0.05 of `s_E` on the log curve (`ln 0.95 / ln 3`). That's before counting any extra energy those failures used.
 - Edge cases to clarify: retries, cancellations, boundary equality (`≤` vs `<`), one-token outputs for TPOT.

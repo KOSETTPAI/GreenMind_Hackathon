@@ -12,11 +12,11 @@
 
 | Constant | Value | What it means for this approach |
 |---|---|---|
-| `η_base` | 0.00154 SLO-met req/J (≈ 649 J per request) | the number to beat |
-| `K` | 3× → η ≥ 0.00462 (≈ 216 J per request) | full energy marks; gains past this are wasted |
-| Reference macro-accuracy | 87.2% | retention = candidate macro-accuracy / 0.872 |
+| `η_base` | **Final 0.00163** SLO-met req/J (≈ 613 J per request); Validation 0.00154 (≈ 649 J) | the number to beat. Only the Final counts |
+| `K` | 3× → Final η ≥ 0.00489 (≈ 204 J per request); Validation η ≥ 0.00462 (≈ 216 J) | full energy marks; gains past this are wasted |
+| Reference macro-accuracy | **Final 87.8%**; Validation 87.2% | retention = candidate macro-accuracy / that track's reference |
 
-Energy score (inferred form, still to confirm): `s_E = clip(ln(η / 0.00154) / ln 3, 0, 1)`.
+Energy score (confirmed on the grader page): `s_E = clip(ln(η / η_base) / ln 3, 0, 1)`, with the track's own `η_base`.
 
 | η gain vs baseline | 1.25× | 1.5× | 1.75× | 2× | 2.5× | 3× |
 |---|---:|---:|---:|---:|---:|---:|
@@ -84,7 +84,7 @@ Takeaways:
 | 2 | Is calibration on public data allowed (not on the evaluation set)? | briefing rules | use FP8 weight-only first (needs no calibration data) |
 | 3 | Does the installed vLLM run this hybrid architecture with quantized linear layers on A100? | startup logs; small test | try the other format, or stop |
 | 4 | Do we know the retention cutoff? | briefing | assume a conservative cutoff (≥ 98%) until known |
-| 5 | Is the reproduced baseline close to η ≈ 0.00154 and macro-accuracy ≈ 87.2%? | harness | fix the harness first; nothing below is trustworthy without this |
+| 5 | Is the reproduced baseline close to the track's reference (Final η ≈ 0.00163 and 87.8%; Validation η ≈ 0.00154 and 87.2%)? | harness | fix the harness first; nothing below is trustworthy without this |
 
 Concepts: [Allowed Artifacts](../use_ur_brain/9_Allowed_Artifacts_Dependencies_and_Network_Rules.md) · [Hybrid Cache and Kernels](../use_ur_brain/86_Hybrid_Cache_and_Architecture_Specific_Kernels.md)
 
@@ -105,7 +105,7 @@ Concepts: [FP8](../use_ur_brain/48_FP8.md) · [Weight-Only Quantization](../use_
 Each step changes one thing. Every run is repeated at least 3 times on the official workload and arrival schedule, and logged in the experiment log.
 
 ### Step 0: Lock the baseline
-- Reproduce BF16 + vLLM. Record macro-accuracy (target ≈ 87.2%), per-category accuracy, SLO-met count, window energy, η (target ≈ 0.00154), TTFT/TPOT p95, and preemptions.
+- Reproduce BF16 + vLLM. Record macro-accuracy (target ≈ 87.8% Final, 87.2% Validation), per-category accuracy, SLO-met count, window energy, η (target ≈ 0.00163 Final, 0.00154 Validation), TTFT/TPOT p95, and preemptions.
 - Measure the noise: the spread of η and of macro-accuracy across repetitions. This defines the minimum believable improvement.
 - Record `P_idle`, `P_active`, and the busy fraction from telemetry to calibrate the model in section 3.2.
 
