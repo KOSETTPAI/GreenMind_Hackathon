@@ -1,0 +1,14 @@
+# val13: cap 128 + MTP k=1. Parent run6 (prefix caching left at the image default, on).
+# Do not add --enable-prefix-caching or --mamba-cache-mode.
+CMKL/MANGO1.5-Qwen3.5-9B-AWQ-W4A16-mtp
+--host 0.0.0.0
+--port 8000
+--served-model-name mango1.5-awq-w4a16
+--trust-remote-code
+--gpu-memory-utilization 0.90
+--max-model-len 40960
+--enable-auto-tool-choice
+--tool-call-parser qwen3_coder
+--reasoning-parser qwen3
+--max-num-seqs 128
+--speculative-config {"method":"mtp","num_speculative_tokens":1}

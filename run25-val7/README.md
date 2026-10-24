@@ -1,12 +1,24 @@
-# run25-val7: cap kept, MTP k=1
+# run25-val7: cap 96 + MTP k=2, 250 W
 
-**Cycle 2, after final2.** Refuses to start without `CONFIRM_CYCLE2=1`.
+**Validation.** Validation, baseline η 0.00154 and 87.2%. A works-check; it does not count. Schedule: [CYCLE_PLAN.md](../CYCLE_PLAN.md).
 
-**Single change:** `--speculative-config {"method":"mtp","num_speculative_tokens":1}`.
+| | |
+|---|---|
+| vLLM change from run6 | cap 96 + MTP k=2 |
+| Power limit | 250 W, set by `start.sh` before the container starts |
 
-**Launch only if** SLO-met is already high and joules are the remaining gap toward 99.9. On run4 full, MTP accepted 91.5% of drafts but, combined with explicit prefix caching, prefix hits fell to about 1%. This profile leaves caching at the image default. Read the prefix hit rate from `/metrics` after warmup. If it collapses toward run4's 1%, stop and do not submit.
+Works-check for final6. Check tool calls in warmup and the draft acceptance rate in `/metrics`.
+
+Runs on its own. It does not need any earlier run or a replay.
 
 ```bash
-CONFIRM_CYCLE2=1 REPLACE=1 ./run25-val7/start.sh
+./run25-val7/flag-check.sh && REPLACE=1 ./run25-val7/start.sh
 python3 lib/warmup.py
+./lib/watch.sh        # second terminal, start just before Submit
+```
+
+After the grader finishes:
+
+```bash
+python3 lib/summarize.py ~/greenmind-runs/latest/telemetry.csv --slo-met <N> --track validation
 ```

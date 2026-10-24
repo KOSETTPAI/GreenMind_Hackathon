@@ -1,6 +1,5 @@
-# val7, cycle 2 step 5. Parent: the final1 winner. Single change: MTP k=1.
-# Only if SLO-met is already high and s_E is the remaining gap, and prefix-cache hits stayed high.
-# Reject immediately if the startup log or /metrics shows the prefix hit rate collapsing, as it did on run4.
+# val7: cap 96 + MTP k=2, 250 W. Parent run6 (prefix caching left at the image default, on).
+# Do not add --enable-prefix-caching or --mamba-cache-mode.
 CMKL/MANGO1.5-Qwen3.5-9B-AWQ-W4A16-mtp
 --host 0.0.0.0
 --port 8000
@@ -11,5 +10,5 @@ CMKL/MANGO1.5-Qwen3.5-9B-AWQ-W4A16-mtp
 --enable-auto-tool-choice
 --tool-call-parser qwen3_coder
 --reasoning-parser qwen3
---max-num-seqs 64
---speculative-config {"method":"mtp","num_speculative_tokens":1}
+--max-num-seqs 96
+--speculative-config {"method":"mtp","num_speculative_tokens":2}

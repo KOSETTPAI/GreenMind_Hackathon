@@ -1,6 +1,5 @@
-# val1, cycle 1 step 5. Parent: run6. Single change: --max-num-seqs 64.
-# Same server as run16. Submit this folder, not run16.
-# Prefix caching stays at the image default (on). Do not add --enable-prefix-caching.
+# val1: cap 64. Parent run6 (prefix caching left at the image default, on).
+# Do not add --enable-prefix-caching or --mamba-cache-mode.
 CMKL/MANGO1.5-Qwen3.5-9B-AWQ-W4A16-mtp
 --host 0.0.0.0
 --port 8000

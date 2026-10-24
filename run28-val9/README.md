@@ -1,12 +1,24 @@
-# run28-val9: scheduler budget 16384
+# run28-val9: cap 96 + MTP k=1, 250 W
 
-**Cycle 3.** Refuses to start without `CONFIRM_CYCLE3=1`.
+**Validation.** Validation, baseline η 0.00154 and 87.2%. A works-check; it does not count. Schedule: [CYCLE_PLAN.md](../CYCLE_PLAN.md).
 
-**Single change:** `--max-num-batched-tokens 16384`, cap stays 64.
+| | |
+|---|---|
+| vLLM change from run6 | cap 96 + MTP k=1 |
+| Power limit | 250 W, set by `start.sh` before the container starts |
 
-**Launch only if** val6's 8192 budget improved TTFT and p95 TPOT still had room. Otherwise skip it.
+Works-check for final4.
+
+Runs on its own. It does not need any earlier run or a replay.
 
 ```bash
-CONFIRM_CYCLE3=1 REPLACE=1 ./run28-val9/start.sh
+./run28-val9/flag-check.sh && REPLACE=1 ./run28-val9/start.sh
 python3 lib/warmup.py
+./lib/watch.sh        # second terminal, start just before Submit
+```
+
+After the grader finishes:
+
+```bash
+python3 lib/summarize.py ~/greenmind-runs/latest/telemetry.csv --slo-met <N> --track validation
 ```

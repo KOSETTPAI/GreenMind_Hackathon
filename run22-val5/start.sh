@@ -2,8 +2,8 @@
 # Launch this run. Shared implementation: ../lib/start.sh. See README.md.
 set -Eeuo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-[[ "${CONFIRM_CYCLE2:-}" == "1" ]] || { echo "[ERROR] Cycle 2 waits for the final1 History row. Re-run with CONFIRM_CYCLE2=1 only if final1 missed TTFT because the cap queued requests." >&2; exit 1; }
 export GREENMIND_RUN="$(basename "$HERE")"
 export GREENMIND_TIER="val5"
+export GREENMIND_POWER_W="250"
 export GREENMIND_PROFILE="$HERE/profile.args"
 exec "$HERE/../lib/start.sh" "$@"

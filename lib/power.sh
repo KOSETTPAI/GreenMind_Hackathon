@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # GPU power limit. Host-side; one constant value for a whole graded run.
-# Run this only from run15, after that run's README conditions hold.
+# Manual use. The cycle runs set power through GREENMIND_POWER_W in their start.sh.
 #
 #   ./lib/power.sh show
 #   CONFIRM_SLO=at-least-90 ./lib/power.sh set 250     # then 200, then 175

@@ -1,5 +1,5 @@
-# final2, cycle 2 step 3. Default profile is cap 64.
-# If val4 (cap 24) or val5 (cap 96) won the replay, copy that profile here before launching.
+# final2: cap 64 + MTP k=1. Parent run6 (prefix caching left at the image default, on).
+# Do not add --enable-prefix-caching or --mamba-cache-mode.
 CMKL/MANGO1.5-Qwen3.5-9B-AWQ-W4A16-mtp
 --host 0.0.0.0
 --port 8000
@@ -11,3 +11,4 @@ CMKL/MANGO1.5-Qwen3.5-9B-AWQ-W4A16-mtp
 --tool-call-parser qwen3_coder
 --reasoning-parser qwen3
 --max-num-seqs 64
+--speculative-config {"method":"mtp","num_speculative_tokens":1}

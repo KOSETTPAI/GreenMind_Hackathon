@@ -1,12 +1,24 @@
-# run30-final4: cycle 3's last Final
+# run30-final4: cap 96 + MTP k=1, 250 W
 
-Default profile is cap 64. Copy the cycle-3 winner's `profile.args` here first.
+**Final.** Final, baseline η 0.00163 and 87.8%. This is the graded track. Schedule: [CYCLE_PLAN.md](../CYCLE_PLAN.md).
 
-`start.sh` refuses unless `CONFIRM_FINAL4=1`. Final baseline 0.00163 and 87.8%.
+| | |
+|---|---|
+| vLLM change from run6 | cap 96 + MTP k=1 |
+| Power limit | 250 W, set by `start.sh` before the container starts |
 
-Cycle 4 does not get a new folder. Relaunch whichever folder won, change nothing, and repeat it.
+The energy step. 99.9 needs about 205 J per SLO-met request on the Final, and run6 used about 221. A 250 W limit trims joules once TPOT has headroom.
+
+Runs on its own. It does not need any earlier run or a replay.
 
 ```bash
-CONFIRM_FINAL4=1 REPLACE=1 ./run30-final4/start.sh
+./run30-final4/flag-check.sh && REPLACE=1 ./run30-final4/start.sh
 python3 lib/warmup.py
+./lib/watch.sh        # second terminal, start just before Submit
+```
+
+After the grader finishes:
+
+```bash
+python3 lib/summarize.py ~/greenmind-runs/latest/telemetry.csv --slo-met <N> --track final
 ```

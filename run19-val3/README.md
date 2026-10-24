@@ -1,13 +1,24 @@
-# run19-val3: cap 64 plus long-prefill splitting
+# run19-val3: cap 96 + MTP k=1
 
-**Cycle 1, third Validation.** Parent is [run17-val1](../run17-val1/README.md).
+**Validation.** Validation, baseline η 0.00154 and 87.2%. A works-check; it does not count. Schedule: [CYCLE_PLAN.md](../CYCLE_PLAN.md).
 
-**Single change:** `--long-prefill-token-threshold 2048`. The cap stays 64.
+| | |
+|---|---|
+| vLLM change from run6 | cap 96 + MTP k=1 |
+| Power limit | card default (400 W), set by `start.sh` before the container starts |
 
-**Why:** while other requests are waiting, a prompt longer than 2048 tokens prefills at most 2048 tokens per step instead of taking the whole step. That is the TTFT cost of queueing behind one long prompt. Keep it only if the replay's p95 TTFT improves and p95 TPOT stays under 50 ms.
+Works-check for final3.
+
+Runs on its own. It does not need any earlier run or a replay.
 
 ```bash
-./run19-val3/flag-check.sh
-REPLACE=1 ./run19-val3/start.sh
+./run19-val3/flag-check.sh && REPLACE=1 ./run19-val3/start.sh
 python3 lib/warmup.py
+./lib/watch.sh        # second terminal, start just before Submit
+```
+
+After the grader finishes:
+
+```bash
+python3 lib/summarize.py ~/greenmind-runs/latest/telemetry.csv --slo-met <N> --track validation
 ```

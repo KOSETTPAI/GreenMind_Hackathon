@@ -1,18 +1,18 @@
 # Shared launch scripts
 
-`run5` onward use the scripts here, including `run17-val1` through `run30-final4`. `run4` keeps its own copies and its own profiles. Do not point a run4 launch at this directory.
+`run5` onward use the scripts here, including `run17-val1` through `run41-final7`. `run4` keeps its own copies and its own profiles. Do not point a run4 launch at this directory.
 
 Each later run is one change from its parent. The live order is `CYCLE_PLAN.md`. The profile in that run's folder is the whole vLLM argument list. `start.sh` launches exactly those arguments, and `preflight.sh` fails if the container has a different set.
 
 | Script | Role |
 |---|---|
-| `start.sh` | `docker run`, wait for `/v1/models`, save a record under `~/greenmind-runs/<time>_<run>/`, run the preflight. Called by `<run>/start.sh`. Publishes `0.0.0.0:8000` unless `BIND` is set |
+| `start.sh` | Set the power limit from `GREENMIND_POWER_W` (or restore the default), `docker run`, wait for `/v1/models`, save a record under `~/greenmind-runs/<time>_<run>/`, run the preflight. Called by `<run>/start.sh`. Publishes `0.0.0.0:8000` unless `BIND` is set |
 | `preflight.sh` | Read-only. Checks the container against the profile, then chat, streaming, a tool call, and thinking-on streaming |
 | `preflight_checks.py` | The checks. Also rejects a profile that breaks the endpoint contract |
 | `flag-check.sh` | Confirms every profile flag exists in `vllm serve --help`. Prints help only, so the running server keeps serving. Not during a graded window |
 | `warmup.py` | Grader-shaped warmup, including a two-turn tool call. Run after `READY`, before Submit, never during a graded window |
 | `watch.sh`, `summarize.py` | One-second telemetry and its summary. Validation only. `summarize.py` requires `--track final` or `--track validation`, which picks that track's baseline (Final 0.00163, Validation 0.00154) |
-| `power.sh` | One constant power limit. Called by `run15` and `run26-val8`. Never during a graded window |
+| `power.sh` | Manual power limit (`show`, `set`, `restore`). The cycle runs set power through `start.sh` instead. Never during a graded window |
 | `check-external.ps1` | From a PC: TCP, `/models`, and one chat to the public IP |
 | `replay.py` | Final-shaped synthetic load: 300 requests, ramp to 4 req/s, a 45 s peak, then 1 req/s. Prompt and output sizes are sampled from our own server's `/metrics` histograms. Prints SLO-met, peak-phase SLO share, p95 TTFT ÷ SLO, p95 TPOT, joules and an estimated `S`, with A assumed 1. GPU workload: never during a Validation or Final. It aborts if the server already has running or waiting requests |
 
@@ -24,29 +24,29 @@ Each later run is one change from its parent. The live order is `CYCLE_PLAN.md`.
 | run5 | 35.6 (57/100) | none |
 | run6 | **95.6** (98/100) | **19.1** (127/300) |
 
-Cycle 1 has used its first two Validations (run5, run6) and its first Final (run6, 19.1). Remaining this hour: three Validations, then one Final. The schedule is [CYCLE_PLAN.md](../CYCLE_PLAN.md). The target is Final `S` = 99.9 against the Final baseline.
+Cycle 1 has used its first two Validations (run5, run6) and its first Final (run6, 19.1). Remaining this hour: `run17-val1`, `run18-val2`, `run19-val3`, then `run20-final1`. The schedule is [CYCLE_PLAN.md](../CYCLE_PLAN.md). The target is Final `S` = 99.9 against the Final baseline.
 
 run6 holds on Validation and falls apart on the Final. The Final's peak drove 111 requests running at once against 35 on the Validation, and p95 TPOT rose from 18 ms to 82 ms. Diagnosis: [run6/ANALYSIS.md](../run6/ANALYSIS.md).
 
 run6 did not actually turn prefix caching off. This image enables it by default, and the default hit 87% (Validation) and 44% (Final) of prompt tokens. Profiles built on run6 keep it on. Do not add `--enable-prefix-caching`.
 
-### This cycle (parent run6)
+### Next runs (parent run6)
 
-| Run | Change from run6 | Launch guard | Purpose |
+`run17-val1` through `run41-final7`, in the order in [CYCLE_PLAN.md](../CYCLE_PLAN.md). Each folder runs on its own: no launch guard, no replay. Its `start.sh` sets `GREENMIND_POWER_W` (empty means the card default, which `lib/start.sh` restores if an earlier run lowered it).
+
+| Final | Folder | vLLM change from run6 | Power |
 |---|---|---|---|
-| [run17-val1](../run17-val1/README.md) | `--max-num-seqs 64` | none | Cap the decode batch. Same profile as run16. **Submit this one** |
-| [run18-val2](../run18-val2/README.md) | `--max-num-seqs 32` | none | Tighter cap. Binds even on Validation, whose peak was 35 |
-| [run19-val3](../run19-val3/README.md) | cap 64 + `--long-prefill-token-threshold 2048` | none | Cap plus long-prefill splitting |
-| [run20-final1](../run20-final1/README.md) | the replay winner, default cap 64 | `CONFIRM_FINAL1=1` | Cycle 1's second Final |
+| final1 | [run20-final1](../run20-final1/README.md) | `--max-num-seqs 64` | default |
+| final2 | [run23-final2](../run23-final2/README.md) | cap 64 + MTP k=1 | default |
+| final3 | [run27-final3](../run27-final3/README.md) | cap 96 + MTP k=1 | default |
+| final4 | [run30-final4](../run30-final4/README.md) | cap 96 + MTP k=1 | 250 W |
+| final5 | [run34-final5](../run34-final5/README.md) | cap 96 + MTP k=1 | 225 W |
+| final6 | [run37-final6](../run37-final6/README.md) | cap 96 + MTP k=2 | 250 W |
+| final7 | [run41-final7](../run41-final7/README.md) | cap 96 + MTP k=1, or the best earlier Final | 250 W |
 
-Validation saturates at 98/100 and does not reach Final concurrency, so it cannot rank the caps. Replay each candidate with the same `--seed`, then spend `run20-final1` on the best:
+The Validations in between are works-checks of the next Final's server, plus a few variants.
 
-```bash
-REPLACE=1 ./run17-val1/start.sh && python3 lib/warmup.py
-python3 lib/replay.py --label val1 --track final
-```
-
-The replay uses random words. Its prefix hits come only from `--reuse-prob`, and it has no agentic multi-turn episodes, so its absolute numbers will not equal the grader's. Use it to rank configurations against each other. Later cycles (`run21-val4` through `run30-final4`) stay behind their `CONFIRM_` guards until final1 is recorded.
+`replay.py` is optional. Its prompts are random words, its prefix hits come only from `--reuse-prob`, and it has no agentic multi-turn episodes, so its absolute numbers will not equal the grader's.
 
 ## Ladder
 

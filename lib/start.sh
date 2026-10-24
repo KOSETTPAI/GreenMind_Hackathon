@@ -9,6 +9,9 @@
 #   GREENMIND_PROFILE   path to that run's profile.args
 # Optional:
 #   GREENMIND_TIER      short name for the record directory. Defaults to GREENMIND_RUN.
+#   GREENMIND_POWER_W   GPU power limit in watts for this run. Empty means the card
+#                       default, which is restored if an earlier run lowered it.
+#                       Applied before the container starts, never during a window.
 #
 #   REPLACE=1 ./run5/start.sh       save the current container's record, then replace it
 #   docker rm -f mango-vllm && ./run5/start.sh
@@ -27,7 +30,8 @@
 #   WAIT_SECONDS=900 how long to wait for /v1/models
 #   SKIP_PREFLIGHT=1 launch only (not recommended)
 #
-# Does not change the GPU power limit or clocks. See lib/power.sh.
+# Sets the power limit from GREENMIND_POWER_W (or back to the card default).
+# Never locks clocks.
 set -Eeuo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -37,6 +41,7 @@ CHECKS="$HERE/preflight_checks.py"
 RUN_NAME="${GREENMIND_RUN:-}"
 PROFILE_FILE="${GREENMIND_PROFILE:-}"
 TIER="${GREENMIND_TIER:-$RUN_NAME}"
+POWER_W="${GREENMIND_POWER_W:-}"
 CONTAINER="${CONTAINER_NAME:-mango-vllm}"
 PORT="${PORT:-8000}"
 IMAGE="${VLLM_IMAGE:-vllm/vllm-openai:nightly}"
@@ -121,6 +126,7 @@ echo "Container:  $CONTAINER"
 echo "Bind:       ${BIND}:${PORT} -> container 8000 ($BIND_SOURCE)"
 echo "Endpoint:   $BASE_URL"
 echo "Image:      $IMAGE"
+if [[ -n "$POWER_W" ]]; then echo "Power:      ${POWER_W} W"; else echo "Power:      card default"; fi
 echo "Command:"
 printf '  %q' "${DOCKER_CMD[@]}"
 printf '\n'
@@ -165,6 +171,20 @@ if command -v nvidia-smi >/dev/null 2>&1; then
     sleep 2
   done
   [[ -z "$apps" ]] || die "The GPU is still busy after 30 s. One serving process only: $(tr '\n' ';' <<< "$apps")"
+
+  plq() { nvidia-smi -i 0 --query-gpu="$1" --format=csv,noheader,nounits | tr -d ' \r' | cut -d. -f1; }
+  default_w="$(plq power.default_limit)"
+  current_w="$(plq power.limit)"
+  target_w="${POWER_W:-$default_w}"
+  [[ "$target_w" =~ ^[0-9]+$ ]] || die "GREENMIND_POWER_W must be whole watts, got '$target_w'."
+  (( target_w >= $(plq power.min_limit) && target_w <= $(plq power.max_limit) )) \
+    || die "$target_w W is outside this card's power range."
+  if [[ "$current_w" != "$target_w" ]]; then
+    echo "Power limit: $current_w W -> $target_w W"
+    [[ "$target_w" == "$default_w" ]] || sudo nvidia-smi -i 0 -pm 1 >/dev/null
+    sudo nvidia-smi -i 0 -pl "$target_w" >/dev/null || die "Could not set the power limit to $target_w W."
+  fi
+  echo "Power limit: $(plq power.limit) W (card default $default_w W)"
 fi
 
 mkdir -p "$HOME/.cache/huggingface"

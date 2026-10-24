@@ -1,7 +1,7 @@
 # run26-val8
 
-Power cap on the server that already won. No vLLM change. Validation only, to check TPOT stays under 50 ms before spending a Final. Baseline for this row is Validation: 0.00154 and 87.2%.
+Validation. Validation, baseline η 0.00154 and 87.2%. A works-check; it does not count. Copy the row from grader History. Blank cells are missing, not zero.
 
-| ID | Track | Start (UTC+7) | Cap | S | SLO-met | p95 TPOT | η / 0.00154 | J/request | Decision |
-|---|---|---|---|---|---|---|---|---|---|
-| val8 | Validation | | | | | | | | |
+| ID | Start (UTC+7) | Profile | Power | S | A | sE | sT | sL | η / 0.00154 | J/request | p95 TTFT | p95 TPOT | SLO-met | Accuracy | Prefix hits |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| val8 | | cap 128 + MTP k=1 | card default (400 W) | | | | | | | | | | | | |

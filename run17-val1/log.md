@@ -1,7 +1,7 @@
 # run17-val1
 
-Blank cells are missing, not zero. Copy them from grader History. Name the track. Final baseline 0.00163 and 87.8%. Validation baseline 0.00154 and 87.2%. Only the Final counts.
+Validation. Validation, baseline η 0.00154 and 87.2%. A works-check; it does not count. Copy the row from grader History. Blank cells are missing, not zero.
 
-| ID | Track | Start (UTC+7) | Parent | Single change | S | SLO-met | Accuracy | η / baseline | J/request | p95 TTFT | p95 TPOT | Decision |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| val1 | | | | | | | | | | | | |
+| ID | Start (UTC+7) | Profile | Power | S | A | sE | sT | sL | η / 0.00154 | J/request | p95 TTFT | p95 TPOT | SLO-met | Accuracy | Prefix hits |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| val1 | | cap 64 | card default (400 W) | | | | | | | | | | | | |

@@ -1,10 +1,24 @@
-# run27-final3: cycle 2's second Final
+# run27-final3: cap 96 + MTP k=1
 
-Default profile is cap 64, so a power-cap Final can be relaunched as the same server. If val6 or val7 won, copy that `profile.args` here first. If the only change was the power cap, set the cap with [run26-val8](../run26-val8/README.md) before warmup and do not move it during the run.
+**Final.** Final, baseline η 0.00163 and 87.8%. This is the graded track. Schedule: [CYCLE_PLAN.md](../CYCLE_PLAN.md).
 
-`start.sh` refuses unless `CONFIRM_FINAL3=1`. Final baseline 0.00163 and 87.8%.
+| | |
+|---|---|
+| vLLM change from run6 | cap 96 + MTP k=1 |
+| Power limit | card default (400 W), set by `start.sh` before the container starts |
+
+Loosens the cap from 64 to 96 now that MTP finishes requests faster. Fewer requests queue past their TTFT limit.
+
+Runs on its own. It does not need any earlier run or a replay.
 
 ```bash
-CONFIRM_FINAL3=1 REPLACE=1 ./run27-final3/start.sh
+./run27-final3/flag-check.sh && REPLACE=1 ./run27-final3/start.sh
 python3 lib/warmup.py
+./lib/watch.sh        # second terminal, start just before Submit
+```
+
+After the grader finishes:
+
+```bash
+python3 lib/summarize.py ~/greenmind-runs/latest/telemetry.csv --slo-met <N> --track final
 ```

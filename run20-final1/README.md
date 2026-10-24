@@ -1,15 +1,24 @@
-# run20-final1: cycle 1's Final
+# run20-final1: cap 64
 
-**Cycle 1, step 7.** Default profile is val1, `--max-num-seqs 64`.
+**Final.** Final, baseline η 0.00163 and 87.8%. This is the graded track. Schedule: [CYCLE_PLAN.md](../CYCLE_PLAN.md).
 
-Before launching, replay val1, val2, and val3 with the same seed and `--track final`. If val2 or val3 ranks higher, copy that folder's `profile.args` over this one. One change from run6 either way.
+| | |
+|---|---|
+| vLLM change from run6 | cap 64 |
+| Power limit | card default (400 W), set by `start.sh` before the container starts |
 
-`start.sh` refuses unless `CONFIRM_FINAL1=1`.
+First fix for the run6 Final (111 running, p95 TPOT 82 ms). The cap keeps the decode batch under the ~70-running point where p95 TPOT crosses 50 ms.
+
+Runs on its own. It does not need any earlier run or a replay.
 
 ```bash
-CONFIRM_FINAL1=1 ./run20-final1/flag-check.sh
-CONFIRM_FINAL1=1 REPLACE=1 ./run20-final1/start.sh
+./run20-final1/flag-check.sh && REPLACE=1 ./run20-final1/start.sh
 python3 lib/warmup.py
+./lib/watch.sh        # second terminal, start just before Submit
 ```
 
-This is a Final. Baseline 0.00163 and 87.8%. Record the History row in [log.md](log.md) before cycle 2.
+After the grader finishes:
+
+```bash
+python3 lib/summarize.py ~/greenmind-runs/latest/telemetry.csv --slo-met <N> --track final
+```

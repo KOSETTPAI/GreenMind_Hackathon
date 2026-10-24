@@ -1,13 +1,24 @@
-# run18-val2: cap 32
+# run18-val2: cap 64 + MTP k=1
 
-**Cycle 1, second Validation.** Parent is [run17-val1](../run17-val1/README.md).
+**Validation.** Validation, baseline η 0.00154 and 87.2%. A works-check; it does not count. Schedule: [CYCLE_PLAN.md](../CYCLE_PLAN.md).
 
-**Single change:** `--max-num-seqs 32` (val1 uses 64).
+| | |
+|---|---|
+| vLLM change from run6 | cap 64 + MTP k=1 |
+| Power limit | card default (400 W), set by `start.sh` before the container starts |
 
-**Why:** 32 is below the Validation peak of 35, so this is the one cap that can show queueing on a Validation. If SLO-met falls here while val1 held, the tighter cap is costing TTFT and is a poor Final candidate. If it holds, it is the safer Final candidate when val1's replay still has p95 TPOT over 50 ms.
+Works-check for final2. Read the prefix hit rate from `summarize.py`: run6's Validation hit 87%. If MTP drops it below about 50%, or accuracy falls under 86%, run final2 with the run20-final1 profile instead.
+
+Runs on its own. It does not need any earlier run or a replay.
 
 ```bash
-./run18-val2/flag-check.sh
-REPLACE=1 ./run18-val2/start.sh
+./run18-val2/flag-check.sh && REPLACE=1 ./run18-val2/start.sh
 python3 lib/warmup.py
+./lib/watch.sh        # second terminal, start just before Submit
+```
+
+After the grader finishes:
+
+```bash
+python3 lib/summarize.py ~/greenmind-runs/latest/telemetry.csv --slo-met <N> --track validation
 ```
