@@ -1,0 +1,18 @@
+# freshrun1: cold Final of the only server that scored above the Final energy cliff.
+# Same forward path as run5, which served the 19.1 Final while its prefix cache was warm.
+# Weights: AWQ W4A16. Decode: autoregressive, MTP off. Sequences: uncapped.
+# Hybrid cache: explicit prefix caching with mamba state aligned to cache blocks.
+# Tokens per step: image default (do not set --max-num-batched-tokens).
+# Scheduler: FCFS. Attention kernel: image default. Power: card default, set by start.sh.
+CMKL/MANGO1.5-Qwen3.5-9B-AWQ-W4A16-mtp
+--host 0.0.0.0
+--port 8000
+--served-model-name mango1.5-awq-w4a16
+--trust-remote-code
+--gpu-memory-utilization 0.90
+--max-model-len 40960
+--enable-auto-tool-choice
+--tool-call-parser qwen3_coder
+--reasoning-parser qwen3
+--enable-prefix-caching
+--mamba-cache-mode align

@@ -29,12 +29,13 @@ run6 was never launched: its flag-check failed, so `&&` stopped, and run5's cont
 
 ### Remaining Finals
 
-All on the base: prefix caching on by default, MTP off, no cap.
+Next launch is [freshrun1](../freshrun1/README.md): the 19.1 flag set, cold. MTP off, no cap, card default power. Its `flag-check.sh` calls [lib/flag-check.sh](flag-check.sh).
 
 | Folder | Change from the base | Rule |
 |---|---|---|
-| [final-run3](../final-run3/README.md) | `--max-num-batched-tokens 8192` | Next |
-| [final-run4](../final-run4/README.md) | budget 8192 + `--performance-mode throughput` | Only if final-run3 beat 127/300; otherwise `./run6/start.sh` |
+| [final-run3](../final-run3/README.md) | `--max-num-batched-tokens 8192`, cache flags omitted | Already launched. History row was not copied |
+| [freshrun1](../freshrun1/README.md) | cold 19.1 flags: explicit prefix cache, image-default step size, MTP off, no cap | Next |
+| [final-run4](../final-run4/README.md) | same flags as freshrun1 | Same profile, earlier copy |
 | [final-run5](../final-run5/README.md) | best of final-run3 and final-run4 | 250 W only if p95 TPOT ≤ 40 ms |
 | [final-run6](../final-run6/README.md), [final-run7](../final-run7/README.md) | repeat the best | |
 
