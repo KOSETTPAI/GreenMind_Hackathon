@@ -12,7 +12,7 @@ Image for the ladder: `vllm/vllm-openai:nightly`. Record the digest from `docker
 
 | ID | Track | Start (UTC+7) | Parent | Single change | Image digest | S | SLO-met | Accuracy | η / baseline | J/request | p95 TTFT | p95 TPOT | Preemptions | Cache hit rate | MTP acceptance | Decision |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| V1 | Validation |  | run4 full | remove MTP; prefix caching stays |  |  |  |  |  |  |  |  |  |  |  |  |
+| V1 | Validation | 2026-10-24 18:27:13 (11:27:13 UTC) | run4 full | remove MTP; prefix caching stays | sha256:cb12c301… (vLLM 0.32.1rc1.dev361) | 35.6 | 57/100 | 90.3% (R 1.035, A 1.00) | 1.41× | 264 | 2.47 s | 55 ms | 0 | 15% (58,080 / 375,667 prompt tokens, telemetry) | n/a | INTERMEDIATE. Beats run4 full Validation (32.8, 50/100) by a little. sE 0.31, sT 0.38, sL 0.50. Peak running 66, waiting up to 10. Parent of run6 |
 
 researcher@gm17:\~/GreenMind_Hackathon$ column -t -s, /home/researcher/greenmind-runs/latest/telemetry.csv
 

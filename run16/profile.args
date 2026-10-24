@@ -1,0 +1,13 @@
+# Parent: run6 (Validation 95.6, Final 19.1). Single change: --max-num-seqs 64.
+# Prefix caching stays on by default (no flag), as in run6.
+CMKL/MANGO1.5-Qwen3.5-9B-AWQ-W4A16-mtp
+--host 0.0.0.0
+--port 8000
+--served-model-name mango1.5-awq-w4a16
+--trust-remote-code
+--gpu-memory-utilization 0.90
+--max-model-len 40960
+--enable-auto-tool-choice
+--tool-call-parser qwen3_coder
+--reasoning-parser qwen3
+--max-num-seqs 64
