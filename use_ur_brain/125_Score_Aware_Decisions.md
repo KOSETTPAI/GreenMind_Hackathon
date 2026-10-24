@@ -6,22 +6,27 @@
 Score-aware decision making means choosing configurations by their effect on the official score — including gates, useful requests, and energy — not by a single speed metric.
 
 ## Plain-English explanation
-The roadmap's worked example (invented numbers, same 1,000-request workload):
+Worked example using the confirmed energy constants (`η_base = 0.00154` SLO-met req/J, `K = 3`). The workload numbers are invented, scaled to be realistic for one A100: the same 1,000-request workload in both runs.
 
 | Metric | Candidate X | Candidate Y |
 |---|---:|---:|
-| Wall time | 80 s | 65 s |
-| GPU energy | 20 kJ | 22 kJ |
-| Useful/on-time requests | 980 | 900 |
-| Useful requests/joule | 0.049 | 0.0409 |
+| Wall time | 1,500 s | 1,300 s |
+| Average GPU power | 267 W | 323 W |
+| GPU energy | 400 kJ | 420 kJ |
+| SLO-met requests | 980 | 900 |
+| η (SLO-met requests/J) | 0.00245 | 0.00214 |
+| η / η_base | 1.59× | 1.39× |
+| s_E (inferred log form) | 0.42 | 0.30 |
 
-Y is ~19% faster, but uses more energy and delivers fewer useful requests — worse efficiency. If the score rewards energy efficiency and enforces SLOs, **Y loses despite raw speed**.
+Y is about 13% faster, but it draws more power, uses more total energy, and lets 80 more requests miss their SLOs. Its energy score is about 0.12 lower. **Y loses despite raw speed.**
+
+Neither candidate is close to full energy marks (3×, or 0.00462 SLO-met req/J). For either one to reach it with 980 SLO-met requests, window energy would have to fall to about 212 kJ.
 
 ## Technical depth
 **Decision checklist for every candidate:**
 1. Passes all hard gates (accuracy retention, API correctness, stability) with margin?
 2. SLO pass rate / useful requests ≥ best-known?
-3. J per useful request vs best-known?
+3. η vs best-known and vs `η_base = 0.00154` (is `s_E` already saturated at ≥ 3×, i.e., ≥ 0.00462)?
 4. Each component score (`s_E`, `s_T`, `s_L`, `A`) and final S — median over repetitions.
 5. Improvement larger than run-to-run noise?
 6. Per-category regressions?
@@ -36,7 +41,7 @@ Mastery criterion for Stage 9: "you can tell whether a proposed optimization imp
 
 ## Common mistakes
 - Declaring a win from wall time or tokens/s alone.
-- Ignoring the denominator (useful requests).
+- Ignoring the numerator of η (SLO-met requests): a missed SLO costs energy and earns nothing.
 
 ## Related concepts
 [Useful Requests](12_Useful_Requests.md) · [Clipping and Saturation](123_Clipping_and_Saturation.md) · [Controlled Experiments](127_Controlled_Experiments.md) · [Submission Discipline](128_Submission_Discipline.md)

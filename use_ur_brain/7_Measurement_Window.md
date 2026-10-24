@@ -22,7 +22,7 @@ Throughput = completed work / window duration, so the window definition directly
 Like defining the billing period for cloud cost, or the SLO measurement window (rolling 30 days vs calendar month) — the window is part of the metric.
 
 ## Why it matters for GreenMind
-If idle time is in the energy window, a server that burns power while waiting is penalized. If warmup is excluded, aggressive pre-compilation (e.g., CUDA graphs) is "free."
+If idle time is in the energy window, a server that burns power while waiting is penalized. Because full energy marks need 3× baseline efficiency (0.00462 SLO-met requests/J, roughly one third of baseline energy for the same requests), idle energy can be a large share of what's left to cut. If warmup is excluded, aggressive pre-compilation (e.g., CUDA graphs) is "free."
 
 ## Common mistakes
 - Measuring energy over a different window than the grader.
