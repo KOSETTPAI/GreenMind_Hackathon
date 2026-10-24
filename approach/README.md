@@ -2,13 +2,17 @@
 
 Every optimization we considered, one file each. **File number = rank**, from 1 (do first) to 18 (never do). Ranked by **expected score gain ÷ (effort + risk)** on our setup (1× A100 40 GB, vLLM, MANGO1.5-Qwen3.5-9B, 2-day event).
 
-> Nothing here has been run yet. Every command section is labeled **"Proposed steps (untested — run on the VM to confirm)"**. Commands come from public docs, the briefing, and published studies on other models; check flag names with `vllm serve --help` and trust only our own Validation runs.
+> One Validation has been scored. File numbers stay the original ranking. The **run order below replaces that ranking** until SLO-met is high. Command sections in each file are still untested except the defaults that produced V0. Check new flag names with `vllm serve --help` on the VM.
 
-Score: `S = 100 · A · s_E^0.6 · s_T^0.2 · s_L^0.2`. Energy carries the most weight, and idle power counts, so the top approaches either lower watts or turn missed requests into SLO-met ones. Background and sources: [Score_Improvement_Ranking.md](../Score_Improvement_Ranking.md) · [scoring_criteria.md](../scoring_criteria.md).
+Score: `S = 100 · A · s_E^0.6 · s_T^0.2 · s_L^0.2`. Active baseline: `η_base = 0.00154`, reference macro-accuracy `87.2%`, full energy marks at 3×. Background: [Score_Improvement_Ranking.md](../Score_Improvement_Ranking.md) · [scoring_criteria.md](../scoring_criteria.md) · [experiments/log.md](../experiments/log.md).
+
+**V0 (indicative):** `scripts/start-vllm.sh` defaults, `S = 34.8`, SLO-met `56/100`. The checkpoint is already `CMKL/MANGO1.5-Qwen3.5-9B-AWQ-W4A16-mtp`. Approach 3 is adopted, not the next run. A power cap (approach 2) waits until SLO-met is at least 90/100, because a slower decode would fail more of the 50 ms TPOT checks and shrink the numerator of `η`.
 
 ---
 
 ## Ranking
+
+The verdict column is the original hypothesis. Follow [Run order after V0](#run-order-after-v0) for what to submit next. Power cap stays rank 2 on effort, and it is not the next run while SLO-met is 56/100.
 
 | Rank | Approach | Gain | Effort | Risk | Verdict |
 |---:|---|---|---|---|---|
@@ -33,18 +37,17 @@ Score: `S = 100 · A · s_E^0.6 · s_T^0.2 · s_L^0.2`. Energy carries the most 
 
 ---
 
-## Suggested experiment order
+## Run order after V0
 
-The run order differs slightly from the rank, because batch size should be tuned after the model and caching are settled.
+Exact exports and smoke checks: [experiments/vm-sequence.md](../experiments/vm-sequence.md). One change per Validation. Revert any change that lowers SLO-met or `A`.
 
-1. Baseline ×2 for the noise floor ([1](1_Baseline_and_Measurement_Prerequisite.md))
-2. Power cap sweep ([2](2_Fixed_GPU_Power_Cap.md)) → keep the best
-3. Quantized model, check per-class accuracy ([3](3_Weight_Only_Quantization_With_Accuracy_Guardrail.md))
-4. + MTP, draft tokens 1 → 2 → 3 ([4](4_MTP_Speculative_Decoding.md))
-5. + prefix caching ([7](7_Prefix_Caching_Hybrid.md))
-6. Tune batch size, then batched tokens ([5](5_Batch_Size_Max_Num_Seqs.md), [6](6_Batched_Tokens_and_Chunked_Prefill.md))
-7. Small knobs ([8](8_GPU_Memory_and_Max_Model_Len.md), [9](9_Mamba_State_Cache_BF16.md), [10](10_CUDA_Graphs_and_Warmup.md))
-8. Re-check the power cap on the final config
-9. Final submission only on a config that passed Validation twice
+1. Copy the V0 History row into [experiments/log.md](../experiments/log.md). No submission.
+2. `MAX_MODEL_LEN=40960` ([8](8_GPU_Memory_and_Max_Model_Len.md)). Keep it even if the pass count barely moves. Prompts reach 32K and the grader sets `max_tokens = 8192`.
+3. `MAX_NUM_BATCHED_TOKENS=4096`, and chunked prefill if the log says it is off ([6](6_Batched_Tokens_and_Chunked_Prefill.md)). This is the default next step when misses are TPOT or mixed.
+4. MTP with one draft token ([4](4_MTP_Speculative_Decoding.md)). Try `k = 2` or `3` only if `k = 1` raises `S` and tool calls still parse.
+5. Prefix caching with `--mamba-cache-mode align` ([7](7_Prefix_Caching_Hybrid.md)). Skip the submission if the log says hybrid prefix caching turned itself off.
+6. Raise GPU memory utilization, then `max_num_seqs`, only while p95 TPOT is under 50 ms ([5](5_Batch_Size_Max_Num_Seqs.md), [8](8_GPU_Memory_and_Max_Model_Len.md)).
+7. Power cap sweep 250 → 200 → 175 W, only if SLO-met is at least 90/100 ([2](2_Fixed_GPU_Power_Cap.md)).
+8. One confirmation Validation, then one Final. Do not retune on Final.
 
-**Change one thing per run.** Log joules, SLO-met count, per-class accuracy, p95 TTFT/TPOT, and S for every run.
+Do not rebuild a BF16 baseline, and do not start another quantization. Approaches 13–17 stay off the list for the time left before Final closes.
