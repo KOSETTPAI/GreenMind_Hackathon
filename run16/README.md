@@ -11,7 +11,9 @@
 - a Final submission, which is the graded track anyway, or
 - `python3 lib/replay.py --label run16` with the GPU otherwise idle (see [lib/README.md](../lib/README.md)), compared with the same replay on run6.
 
-**Keep if:** Final SLO-met rises well above 127/300 and `S` above 19.1, with `A` unchanged. Watch p95 TTFT. If it rises sharply while TPOT has room, try [run17](../run17/README.md) (96).
+**Same profile as [run17-val1](../run17-val1/README.md).** Submit `run17-val1`, not this folder, so the grader run has the cycle name. Do not submit both.
+
+**Keep if:** Final SLO-met rises well above 127/300 and `S` above 19.1, with `A` unchanged. Watch p95 TTFT. If it rises sharply while TPOT has room, try [run22-val5](../run22-val5/README.md) (96). If TPOT stays over 50 ms, try [run18-val2](../run18-val2/README.md) (32).
 
 ```bash
 ./run16/flag-check.sh

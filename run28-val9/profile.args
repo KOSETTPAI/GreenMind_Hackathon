@@ -1,0 +1,14 @@
+# val9, cycle 3. Parent: the best Final so far. Single change on top of cap 64: budget 16384.
+# Only if 8192 (val6) improved TTFT and p95 TPOT still had room.
+CMKL/MANGO1.5-Qwen3.5-9B-AWQ-W4A16-mtp
+--host 0.0.0.0
+--port 8000
+--served-model-name mango1.5-awq-w4a16
+--trust-remote-code
+--gpu-memory-utilization 0.90
+--max-model-len 40960
+--enable-auto-tool-choice
+--tool-call-parser qwen3_coder
+--reasoning-parser qwen3
+--max-num-seqs 64
+--max-num-batched-tokens 16384

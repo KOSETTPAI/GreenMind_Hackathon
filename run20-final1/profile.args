@@ -1,0 +1,14 @@
+# final1, cycle 1 step 7. Default profile is val1 (cap 64).
+# If the replay ranked val2 or val3 higher, replace this file with that profile before launching.
+# One change from run6 either way. Do not launch before the three Validations and the replay.
+CMKL/MANGO1.5-Qwen3.5-9B-AWQ-W4A16-mtp
+--host 0.0.0.0
+--port 8000
+--served-model-name mango1.5-awq-w4a16
+--trust-remote-code
+--gpu-memory-utilization 0.90
+--max-model-len 40960
+--enable-auto-tool-choice
+--tool-call-parser qwen3_coder
+--reasoning-parser qwen3
+--max-num-seqs 64

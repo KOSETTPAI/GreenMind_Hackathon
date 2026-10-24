@@ -23,3 +23,7 @@ Never compute a Final score, retention or `s_E` with the Validation constants, o
 - Energy: GPU board energy from the NVML total-energy counter only (no CPU/DRAM/PDU).
 
 A Validation score does not predict the Final. run6 scored 95.6 on Validation (35 peak running, p95 TPOT 18 ms) and 19.1 on Final (111 peak running, p95 TPOT 82 ms). Judge a candidate by Final results or a Final-shaped replay (`lib/replay.py --track final`).
+
+**Goal: Final `S` = 99.9**, scored against the Final baseline. With `A = s_T = s_L = 1` that needs `s_E ≈ 0.998`, which is `η ≈ 2.995 × 0.00163 ≈ 0.00488`: about 205 J per SLO-met request, and essentially every request inside both SLOs. At run6's Final energy (~66 kJ) even 300/300 SLO-met is only ~2.8× and `S ≈ 96`. The last points need both full SLO compliance and slightly fewer joules (a power cap, only after TPOT is under 50 ms).
+
+**Hourly cycle** (5 Validation + 2 Final, the quotas): 2 Validations, analyze, 1 Final, analyze, 3 Validations, analyze, 1 Final. Validation only checks that a server still works. The schedule is `CYCLE_PLAN.md`. Cycle 1 has finished its first Final (run6, 19.1); next are `run17-val1`, `run18-val2`, `run19-val3`, then `run20-final1`.

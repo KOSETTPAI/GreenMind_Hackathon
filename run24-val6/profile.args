@@ -1,0 +1,15 @@
+# val6, cycle 2 step 5. Parent: the final1 winner. Single change: --max-num-batched-tokens 8192.
+# Only if final1 held TPOT under 50 ms and the remaining misses are TTFT.
+# Keep the cap line equal to the winner (64 unless you copied another profile).
+CMKL/MANGO1.5-Qwen3.5-9B-AWQ-W4A16-mtp
+--host 0.0.0.0
+--port 8000
+--served-model-name mango1.5-awq-w4a16
+--trust-remote-code
+--gpu-memory-utilization 0.90
+--max-model-len 40960
+--enable-auto-tool-choice
+--tool-call-parser qwen3_coder
+--reasoning-parser qwen3
+--max-num-seqs 64
+--max-num-batched-tokens 8192

@@ -271,7 +271,7 @@ Raising SLO-met is worth far more than shaving joules.
 
 ## 7. Next approaches and implementation plan
 
-Goal for the remaining time: a configuration that gets most peak requests under their TTFT SLO with p95 TPOT ≤ 50 ms, confirmed by one Validation, then one clean Final before 25 Oct 11:00.
+Goal for the remaining time: Final `S` = 99.9 against the Final baseline (η_base 0.00163, macro-accuracy 87.8%). The live schedule, the run folders, and the 99.9 arithmetic are in [CYCLE_PLAN.md](CYCLE_PLAN.md). The ladder below is the earlier plan. It is superseded: run6 already scored 95.6 on Validation and 19.1 on the Final, and the next folders are `run17-val1` onward.
 
 ### Step 0: housekeeping (no submission)
 

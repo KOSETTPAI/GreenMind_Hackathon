@@ -1,0 +1,13 @@
+# final2, cycle 2 step 3. Default profile is cap 64.
+# If val4 (cap 24) or val5 (cap 96) won the replay, copy that profile here before launching.
+CMKL/MANGO1.5-Qwen3.5-9B-AWQ-W4A16-mtp
+--host 0.0.0.0
+--port 8000
+--served-model-name mango1.5-awq-w4a16
+--trust-remote-code
+--gpu-memory-utilization 0.90
+--max-model-len 40960
+--enable-auto-tool-choice
+--tool-call-parser qwen3_coder
+--reasoning-parser qwen3
+--max-num-seqs 64

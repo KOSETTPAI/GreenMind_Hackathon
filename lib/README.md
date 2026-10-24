@@ -1,8 +1,8 @@
 # Shared launch scripts
 
-`run5` through `run15` use the scripts here. `run4` keeps its own copies and its own profiles. Do not point a run4 launch at this directory.
+`run5` onward use the scripts here, including `run17-val1` through `run30-final4`. `run4` keeps its own copies and its own profiles. Do not point a run4 launch at this directory.
 
-Each later run is one change from its parent, taken from `GreenMind_Experimentation_Plan.md`. The profile in that run's folder is the whole vLLM argument list. `start.sh` launches exactly those arguments, and `preflight.sh` fails if the container has a different set.
+Each later run is one change from its parent. The live order is `CYCLE_PLAN.md`. The profile in that run's folder is the whole vLLM argument list. `start.sh` launches exactly those arguments, and `preflight.sh` fails if the container has a different set.
 
 | Script | Role |
 |---|---|
@@ -12,11 +12,11 @@ Each later run is one change from its parent, taken from `GreenMind_Experimentat
 | `flag-check.sh` | Confirms every profile flag exists in `vllm serve --help`. Prints help only, so the running server keeps serving. Not during a graded window |
 | `warmup.py` | Grader-shaped warmup, including a two-turn tool call. Run after `READY`, before Submit, never during a graded window |
 | `watch.sh`, `summarize.py` | One-second telemetry and its summary. Validation only. `summarize.py` requires `--track final` or `--track validation`, which picks that track's baseline (Final 0.00163, Validation 0.00154) |
-| `power.sh` | One constant power limit. `run15` is the only run that should call it |
+| `power.sh` | One constant power limit. Called by `run15` and `run26-val8`. Never during a graded window |
 | `check-external.ps1` | From a PC: TCP, `/models`, and one chat to the public IP |
 | `replay.py` | Final-shaped synthetic load: 300 requests, ramp to 4 req/s, a 45 s peak, then 1 req/s. Prompt and output sizes are sampled from our own server's `/metrics` histograms. Prints SLO-met, peak-phase SLO share, p95 TTFT ÷ SLO, p95 TPOT, joules and an estimated `S`, with A assumed 1. GPU workload: never during a Validation or Final. It aborts if the server already has running or waiting requests |
 
-## Current status (2026-10-24 19:10 UTC+7)
+## Current status (2026-10-24 19:30 UTC+7)
 
 | Run | Validation | Final |
 |---|---|---|
@@ -24,29 +24,29 @@ Each later run is one change from its parent, taken from `GreenMind_Experimentat
 | run5 | 35.6 (57/100) | none |
 | run6 | **95.6** (98/100) | **19.1** (127/300) |
 
+Cycle 1 has used its first two Validations (run5, run6) and its first Final (run6, 19.1). Remaining this hour: three Validations, then one Final. The schedule is [CYCLE_PLAN.md](../CYCLE_PLAN.md). The target is Final `S` = 99.9 against the Final baseline.
+
 run6 holds on Validation and falls apart on the Final. The Final's peak drove 111 requests running at once against 35 on the Validation, and p95 TPOT rose from 18 ms to 82 ms. Diagnosis: [run6/ANALYSIS.md](../run6/ANALYSIS.md).
 
-run6 did not actually turn prefix caching off. This image enables it by default, and the default hit 87% (Validation) and 44% (Final) of prompt tokens. Profiles built on run6 keep it on.
+run6 did not actually turn prefix caching off. This image enables it by default, and the default hit 87% (Validation) and 44% (Final) of prompt tokens. Profiles built on run6 keep it on. Do not add `--enable-prefix-caching`.
 
-### Next runs (parent run6)
+### This cycle (parent run6)
 
 | Run | Change from run6 | Launch guard | Purpose |
 |---|---|---|---|
-| [run16](../run16/README.md) | `--max-num-seqs 64` | none | Cap the decode batch so TPOT stays under 50 ms at the Final peak. **First choice** |
-| [run17](../run17/README.md) | `--max-num-seqs 96` | none | Looser cap, if 64 queues too much |
-| [run18](../run18/README.md) | cap 64 + `--long-prefill-token-threshold 2048` | `CONFIRM_R18=1` | Combined: cap plus long-prefill splitting for TTFT |
-| [run19](../run19/README.md) | cap 64 + MTP k=1 | `CONFIRM_R19=1` | Combined: more tokens per step. Reject if prefix hits collapse |
+| [run17-val1](../run17-val1/README.md) | `--max-num-seqs 64` | none | Cap the decode batch. Same profile as run16. **Submit this one** |
+| [run18-val2](../run18-val2/README.md) | `--max-num-seqs 32` | none | Tighter cap. Binds even on Validation, whose peak was 35 |
+| [run19-val3](../run19-val3/README.md) | cap 64 + `--long-prefill-token-threshold 2048` | none | Cap plus long-prefill splitting |
+| [run20-final1](../run20-final1/README.md) | the replay winner, default cap 64 | `CONFIRM_FINAL1=1` | Cycle 1's second Final |
 
-Validation saturates at 98/100 and does not reach Final concurrency, so it cannot rank these. Use `replay.py` on each candidate with the same `--seed`, then spend a Final on the best:
+Validation saturates at 98/100 and does not reach Final concurrency, so it cannot rank the caps. Replay each candidate with the same `--seed`, then spend `run20-final1` on the best:
 
 ```bash
-REPLACE=1 ./run16/start.sh && python3 lib/warmup.py
-python3 lib/replay.py --label run16
-REPLACE=1 ./run6/start.sh && python3 lib/warmup.py      # same replay on the parent, for a baseline
-python3 lib/replay.py --label run6
+REPLACE=1 ./run17-val1/start.sh && python3 lib/warmup.py
+python3 lib/replay.py --label val1 --track final
 ```
 
-The replay uses random words. Its prefix hits come only from `--reuse-prob`, and it has no agentic multi-turn episodes, so its absolute numbers will not equal the grader's. Use it to rank configurations against each other.
+The replay uses random words. Its prefix hits come only from `--reuse-prob`, and it has no agentic multi-turn episodes, so its absolute numbers will not equal the grader's. Use it to rank configurations against each other. Later cycles (`run21-val4` through `run30-final4`) stay behind their `CONFIRM_` guards until final1 is recorded.
 
 ## Ladder
 
@@ -66,7 +66,7 @@ The replay uses random words. Its prefix hits come only from `--reuse-prob`, and
 
 V10 in the plan is a repeat of whichever run won. Relaunch that same folder. It does not get a new profile.
 
-`run7` and everything after it is written as if prefix caching lost (run6). The measured hit rate on `run4` full was 1.0% of prompt tokens, which is why that is the default. If run5 scores higher, copy `run5/profile.args` into the kept branch and change only the line that run's README names.
+`run7` through `run15` were written when run6 was thought to have caching off. It does not: the image default is on, and that default is what scored 95.6. Those folders are not the next launches. The next launches are `run17-val1` onward, and each of them keeps the run6 argument list.
 
 ## Launch
 
