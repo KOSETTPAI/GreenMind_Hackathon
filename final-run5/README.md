@@ -1,27 +1,21 @@
-# final-run5: cap 96 + MTP k=1, 225 W
+# final-run5: the better of final-run3 and final-run4
 
-**Final #7 on the grader** (run4 was Final #1, run6 was Final #2). Final baseline: η 0.00163, macro-accuracy 87.8%. Target `S` = 99.9. Schedule: [CYCLE_PLAN.md](../CYCLE_PLAN.md).
+**Final #7 on the grader.** Final baseline: η 0.00163, macro-accuracy 87.8%. Plan and evidence: [CYCLE_PLAN.md](../CYCLE_PLAN.md).
 
-| | |
-|---|---|
-| vLLM lines added to run6 | --max-num-seqs 96, MTP k=1 |
-| Power limit | 225 W, set by `start.sh` before the container starts |
+Default is final-run3's server. If final-run4 scored higher, copy its profile first:
 
-**Why:** A further energy step at 225 W.
+```bash
+cp final-run4/profile.args final-run5/profile.args
+```
 
-**Watch for:** The same TPOT risk as final-run4, larger.
+**Power:** only if this server's last Final had p95 TPOT at or below 40 ms, set `GREENMIND_POWER_W="250"` in `start.sh` to cut joules. If TPOT was above 40 ms, leave it empty (400 W).
 
-Runs on its own. No guard, no replay, no earlier run needed.
+Do **not** run a Validation on this container before the Final unless you have confirmed with the organizers that it is allowed. The Validation's 100 prompts are the first 100 of the Final, so a Validation leaves them in the prefix cache.
 
 ```bash
 ./final-run5/flag-check.sh && REPLACE=1 ./final-run5/start.sh
 python3 lib/warmup.py
-./lib/watch.sh        # second terminal, just before each Submit
-```
-
-Optionally submit one Validation on this server first, to check it works. Then submit the Final on the **same container**, without relaunching. After each one:
-
-```bash
-python3 lib/summarize.py ~/greenmind-runs/latest/telemetry.csv --slo-met <N> --track validation   # works-check
-python3 lib/summarize.py ~/greenmind-runs/latest/telemetry.csv --slo-met <N> --track final        # the graded run
+./lib/watch.sh        # second terminal, just before Submit
+# Submit the Final. When it finishes, Ctrl-C watch.sh, then:
+python3 lib/summarize.py ~/greenmind-runs/latest/telemetry.csv --slo-met <N> --track final
 ```

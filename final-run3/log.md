@@ -1,8 +1,7 @@
-# final-run3: cap 96 + MTP k=1
+# final-run3: scheduler budget 8192
 
-Copy rows from grader History. Blank cells are missing, not zero. Each track has its own baseline: Final η 0.00163 and 87.8%, Validation η 0.00154 and 87.2%. Only the Final counts.
+Final only. Baseline η 0.00163 and 87.8%. Copy the History row. Blank cells are missing, not zero.
 
-| Track | Start (UTC+7) | Power | S | A | sE | sT | sL | η / track baseline | J/request | p95 TTFT | p95 TPOT | SLO-met | Accuracy | Prefix hits |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Validation (works-check) | | card default (400 W) | | | | | | | | | | /100 | | |
-| **Final** | | card default (400 W) | | | | | | | | | | /300 | | |
+| Start (UTC+7) | Power | S | A | sE | sT | sL | η / 0.00163 | J/request | p95 TTFT | p95 TPOT | SLO-met | Accuracy | Prefix hits |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| | | | | | | | | | | | /300 | | |

@@ -1,27 +1,17 @@
-# final-run4: cap 96 + MTP k=1, 250 W
+# final-run4: budget 8192 + `--performance-mode throughput`
 
-**Final #6 on the grader** (run4 was Final #1, run6 was Final #2). Final baseline: η 0.00163, macro-accuracy 87.8%. Target `S` = 99.9. Schedule: [CYCLE_PLAN.md](../CYCLE_PLAN.md).
+**Final #6 on the grader.** Final baseline: η 0.00163, macro-accuracy 87.8%. Plan and evidence: [CYCLE_PLAN.md](../CYCLE_PLAN.md).
 
-| | |
-|---|---|
-| vLLM lines added to run6 | --max-num-seqs 96, MTP k=1 |
-| Power limit | 250 W, set by `start.sh` before the container starts |
+**What changes:** adds `--performance-mode throughput` to final-run3. This image's help describes it as "larger CUDA graphs, more aggressive batching, throughput-oriented kernels" for high concurrency. The Final peak runs about 100 requests at once.
 
-**Why:** The energy step. 99.9 needs about 205 J per SLO-met request on the Final; run6 used about 221 J per request. A constant 250 W limit trims joules once TPOT has headroom.
+**Launch this only if final-run3 raised SLO-met above 127.** If final-run3 came in below 127, launch `./run6/start.sh` for this Final instead: the plain best-known server (no budget change). See [CYCLE_PLAN.md](../CYCLE_PLAN.md).
 
-**Watch for:** p95 TPOT. A lower power limit slows every step. If the works-check Validation already shows p95 TPOT above about 35 ms, the Final will not have room.
-
-Runs on its own. No guard, no replay, no earlier run needed.
+Do **not** run a Validation on this container before the Final unless you have confirmed with the organizers that it is allowed. The Validation's 100 prompts are the first 100 of the Final, so a Validation leaves them in the prefix cache.
 
 ```bash
 ./final-run4/flag-check.sh && REPLACE=1 ./final-run4/start.sh
 python3 lib/warmup.py
-./lib/watch.sh        # second terminal, just before each Submit
-```
-
-Optionally submit one Validation on this server first, to check it works. Then submit the Final on the **same container**, without relaunching. After each one:
-
-```bash
-python3 lib/summarize.py ~/greenmind-runs/latest/telemetry.csv --slo-met <N> --track validation   # works-check
-python3 lib/summarize.py ~/greenmind-runs/latest/telemetry.csv --slo-met <N> --track final        # the graded run
+./lib/watch.sh        # second terminal, just before Submit
+# Submit the Final. When it finishes, Ctrl-C watch.sh, then:
+python3 lib/summarize.py ~/greenmind-runs/latest/telemetry.csv --slo-met <N> --track final
 ```

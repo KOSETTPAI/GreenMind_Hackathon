@@ -16,37 +16,29 @@ Each later run is one change from its parent. The live order is `CYCLE_PLAN.md`.
 | `check-external.ps1` | From a PC: TCP, `/models`, and one chat to the public IP |
 | `replay.py` | Final-shaped synthetic load: 300 requests, ramp to 4 req/s, a 45 s peak, then 1 req/s. Prompt and output sizes are sampled from our own server's `/metrics` histograms. Prints SLO-met, peak-phase SLO share, p95 TTFT ÷ SLO, p95 TPOT, joules and an estimated `S`, with A assumed 1. GPU workload: never during a Validation or Final. It aborts if the server already has running or waiting requests |
 
-## Current status (2026-10-24 19:30 UTC+7)
+## Current status (2026-10-24 21:00 UTC+7)
 
-| Run | Validation | Final |
+| Grader Final | Server | S | SLO-met | p95 TTFT | p95 TPOT |
+|---|---|---|---|---|---|
+| #1 | run4 full | 0.0 | 93/300 | 3.59 s | 91 ms |
+| #2 | run5's container ("run6") | **19.1** | **127/300** | 2.16 s | 82 ms |
+| #3 | final-run1, cap 64 | 0.0 | 87/300 | 6.54 s | 67 ms |
+| #4 | final-run2, cap 64 + MTP | 0.0 | 81/300 | 7.82 s | 63 ms |
+
+run6 was never launched: its flag-check failed, so `&&` stopped, and run5's container kept serving. The Validation's 100 prompts are the first 100 of the Final, so a second Validation on that container hit the prefix cache (95.6). The cap moved the failure to TTFT. MTP dropped prefix-cache hits to ~1%. Details: [CYCLE_PLAN.md](../CYCLE_PLAN.md).
+
+### Remaining Finals
+
+All on the base: prefix caching on by default, MTP off, no cap.
+
+| Folder | Change from the base | Rule |
 |---|---|---|
-| run4 full | 32.8 (50/100) | 0.0 (93/300) |
-| run5 | 35.6 (57/100) | none |
-| run6 | **95.6** (98/100) | **19.1** (127/300) |
+| [final-run3](../final-run3/README.md) | `--max-num-batched-tokens 8192` | Next |
+| [final-run4](../final-run4/README.md) | budget 8192 + `--performance-mode throughput` | Only if final-run3 beat 127/300; otherwise `./run6/start.sh` |
+| [final-run5](../final-run5/README.md) | best of final-run3 and final-run4 | 250 W only if p95 TPOT ≤ 40 ms |
+| [final-run6](../final-run6/README.md), [final-run7](../final-run7/README.md) | repeat the best | |
 
-Finals so far: run4 (#1, 0.0) and run6 (#2, 19.1). Next is `final-run1` (grader Final #3). Validations are optional works-checks of that server. The schedule is [CYCLE_PLAN.md](../CYCLE_PLAN.md). The target is Final `S` = 99.9 against the Final baseline.
-
-run6 holds on Validation and falls apart on the Final. The Final's peak drove 111 requests running at once against 35 on the Validation, and p95 TPOT rose from 18 ms to 82 ms. Diagnosis: [run6/ANALYSIS.md](../run6/ANALYSIS.md).
-
-run6 did not actually turn prefix caching off. This image enables it by default, and the default hit 87% (Validation) and 44% (Final) of prompt tokens. Profiles built on run6 keep it on. Do not add `--enable-prefix-caching`.
-
-### Next runs (parent run6)
-
-`final-run1` through `final-run7`, in the order in [CYCLE_PLAN.md](../CYCLE_PLAN.md). Each folder runs on its own: no launch guard, no replay. Its `start.sh` sets `GREENMIND_POWER_W` (empty means the card default, which `lib/start.sh` restores if an earlier run lowered it).
-
-| Final | Folder | vLLM change from run6 | Power |
-|---|---|---|---|
-| final1 | [final-run1](../final-run1/README.md) | `--max-num-seqs 64` | default |
-| final2 | [final-run2](../final-run2/README.md) | cap 64 + MTP k=1 | default |
-| final3 | [final-run3](../final-run3/README.md) | cap 96 + MTP k=1 | default |
-| final4 | [final-run4](../final-run4/README.md) | cap 96 + MTP k=1 | 250 W |
-| final5 | [final-run5](../final-run5/README.md) | cap 96 + MTP k=1 | 225 W |
-| final6 | [final-run6](../final-run6/README.md) | cap 96 + MTP k=2 | 250 W |
-| final7 | [final-run7](../final-run7/README.md) | cap 96 + MTP k=1, or the best earlier Final | 250 W |
-
-There are no separate Validation folders. A Validation slot, if used, runs on the next `final-runN` container as a works-check.
-
-`replay.py` is optional. Its prompts are random words, its prefix hits come only from `--reuse-prob`, and it has no agentic multi-turn episodes, so its absolute numbers will not equal the grader's.
+`replay.py` is optional. Its prompts are random words, so its absolute numbers will not equal the grader's.
 
 ## Ladder
 

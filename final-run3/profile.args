@@ -1,5 +1,6 @@
-# final-run3: cap 96 + MTP k=1. Parent run6 (prefix caching left at the image default, on).
-# Do not add --enable-prefix-caching or --mamba-cache-mode.
+# final-run3: scheduler budget 8192.
+# Base is the server behind the best Final so far (run5's container: prefix caching on by default, MTP off, no cap).
+# No --max-num-seqs cap and no MTP: both lost in final-run1 and final-run2.
 CMKL/MANGO1.5-Qwen3.5-9B-AWQ-W4A16-mtp
 --host 0.0.0.0
 --port 8000
@@ -10,5 +11,4 @@ CMKL/MANGO1.5-Qwen3.5-9B-AWQ-W4A16-mtp
 --enable-auto-tool-choice
 --tool-call-parser qwen3_coder
 --reasoning-parser qwen3
---max-num-seqs 96
---speculative-config {"method":"mtp","num_speculative_tokens":1}
+--max-num-batched-tokens 8192

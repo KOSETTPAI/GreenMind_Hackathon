@@ -1,5 +1,5 @@
-# V2. Parent: run5. Single change: prefix caching is removed (--enable-prefix-caching and --mamba-cache-mode).
-# MTP stays off. Do not use run4/profiles/r4-no-prefix.args here; that profile still enables MTP.
+# Bare base: prefix caching on by default (Mamba 'align' applied automatically), MTP off, no cap, budget 2048.
+# Equivalent to run5's container, which served the best Final so far. This profile was never launched before 2026-10-24 21:00.
 CMKL/MANGO1.5-Qwen3.5-9B-AWQ-W4A16-mtp
 --host 0.0.0.0
 --port 8000

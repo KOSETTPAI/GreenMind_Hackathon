@@ -1,5 +1,8 @@
 # run5 / run6: why Validation reached 95.6 and the Final only 19.1
 
+> **Correction (2026-10-24 21:00, from the VM records).** run6 was never launched. `./run6/flag-check.sh && REPLACE=1 ./run6/start.sh` failed at flag-check, so the run5 container (explicit `--enable-prefix-caching`, MTP off, started 11:21 UTC) served the run5 Validation, the "run6" Validation, and the "run6" Final. The Validation's 100 prompts are the first 100 of the Final: the 10-second prompt-throughput sequences match exactly. The 95.6 came from a second Validation over prompts already in the prefix cache, not from any config change. The "image default caching" explanation below is wrong. Current plan: [CYCLE_PLAN.md](../CYCLE_PLAN.md).
+
+
 All three runs used the same image (`sha256:cb12c301…`, vLLM 0.32.1rc1.dev361) and no power cap. The run6 Validation and the run6 Final ran back to back on the same container, with no relaunch.
 
 | Run | Track | S | SLO-met | A | sE | sT | sL | η vs base | J/req | p95 TTFT | p95 TPOT |
