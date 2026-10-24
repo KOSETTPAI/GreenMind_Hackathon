@@ -21,7 +21,7 @@ Verified once: local inference returned `ENDPOINT_OK`, and Docker showed port 80
 
 Not verified by that: reachability from outside the VM, and whether the next container launch has the intended flags.
 
-**Bind mismatch to resolve.** `scripts/start-vllm.sh`, `experiments/lib/launch-from-baseline.sh`, and `experiments_thyme/scripts/lib.sh` in the repo all publish `127.0.0.1:8000`. The running E1 container publishes `0.0.0.0:8000`, so it was not started by those files as committed. The preflight expects `0.0.0.0` by default. A container started from the committed launchers will fail the bind check until the team decides which bind the grader needs and updates the launcher to match. Use `EXPECTED_BIND=127.0.0.1` only when that is the decided bind.
+**Bind.** The running E1 container publishes `0.0.0.0:8000`. `run4/start.sh` does the same by default, and the preflight expects it. `scripts/start-vllm.sh`, `experiments/lib/launch-from-baseline.sh`, and `experiments_thyme/scripts/lib.sh` publish `127.0.0.1:8000`, so a container from those launchers fails the default bind check. That is deliberate: confirm which bind the grader needs before submitting one. `run4/start.sh` with `BIND=127.0.0.1` passes the matching `EXPECTED_BIND` to the preflight.
 
 ## Files
 

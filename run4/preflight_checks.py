@@ -159,6 +159,57 @@ def cmd_args(profile_path, cmd_json, expected_max_len=""):
     return FAIL if problems else PASS
 
 
+CONTRACT_MODEL = "CMKL/MANGO1.5-Qwen3.5-9B-AWQ-W4A16-mtp"
+CONTRACT_FLAGS = {
+    "--host": "0.0.0.0",
+    "--port": "8000",
+    "--served-model-name": "mango1.5-awq-w4a16",
+    "--trust-remote-code": None,
+    "--enable-auto-tool-choice": None,
+    "--tool-call-parser": "qwen3_coder",
+    "--reasoning-parser": "qwen3",
+}
+FORBIDDEN_FLAGS = {"--enforce-eager"}
+MIN_CONTEXT = 40960
+
+
+def cmd_launch_args(profile_path):
+    """Print the profile as NUL-separated launch tokens, after checking the endpoint contract."""
+    model, flags = read_profile(profile_path)
+    problems = []
+    if model != CONTRACT_MODEL:
+        problems.append(f"model {model!r} is not {CONTRACT_MODEL!r}")
+    for key, want in CONTRACT_FLAGS.items():
+        if key not in flags:
+            problems.append(f"missing contract flag {key}")
+        elif want is not None and flags[key] != want:
+            problems.append(f"{key} must be {want!r}, profile has {flags[key]!r}")
+    for key in FORBIDDEN_FLAGS & set(flags):
+        problems.append(f"{key} is not allowed in a run4 profile")
+    try:
+        if int(flags.get("--max-model-len") or 0) < MIN_CONTEXT:
+            problems.append(f"--max-model-len must be at least {MIN_CONTEXT}")
+    except ValueError:
+        problems.append("--max-model-len is not an integer")
+    spec = flags.get("--speculative-config")
+    if spec is not None:
+        try:
+            json.loads(spec)
+        except ValueError:
+            problems.append("--speculative-config is not valid JSON")
+    if problems:
+        for p in problems:
+            print(f"profile {profile_path}: {p}", file=sys.stderr)
+        return FAIL
+    tokens = [model]
+    for key, value in flags.items():
+        tokens.append(key)
+        if value is not None:
+            tokens.append(value)
+    sys.stdout.write("\0".join(tokens) + "\0")
+    return PASS
+
+
 def cmd_profile_value(profile_path, key):
     model, flags = read_profile(profile_path)
     if key == "model":
@@ -459,6 +510,7 @@ def main(argv):
     cmd, args = argv[1], argv[2:]
     table = {
         "args": cmd_args,
+        "launch-args": cmd_launch_args,
         "profile-value": cmd_profile_value,
         "ports": cmd_ports,
         "models": cmd_models,

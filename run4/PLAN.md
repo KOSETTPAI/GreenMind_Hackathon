@@ -1,15 +1,17 @@
-# run4 — combined optimized server (plan, not implemented)
+# run4 — combined optimized server (plan)
 
-One launch that stacks the approaches with the best expected score, served on the same endpoint as `scripts/start-vllm.sh`. Nothing in `scripts/`, `experiments/`, or `experiments_thyme/` changes.
+Implemented. How to run it: [README.md](README.md). This file keeps the reasoning.
+
+One launch that stacks the approaches with the best expected score, served on the same endpoint as the graded E1 container. Nothing in `scripts/`, `experiments/`, or `experiments_thyme/` changes.
 
 Final grader submissions close on 25 October 2026 at 11:00. Validation allows 5 finished submissions per hour, Final allows 2. The one-flag ladder in `experiments/` needs about seven Validations before Final. run4 submits the combined server first and keeps a short fallback ladder for a regression.
 
-## Endpoint contract (unchanged from `scripts/start-vllm.sh`)
+## Endpoint contract
 
 | Item | Value |
 |---|---|
 | Container | `mango-vllm`, `--restart unless-stopped`, `--gpus all`, `--ipc=host` |
-| Publish | `127.0.0.1:8000:8000`, the bind that passed the grader health check |
+| Publish | `0.0.0.0:8000:8000` by default, matching the graded E1 container (`scripts/start-vllm.sh` publishes `127.0.0.1`). `BIND=127.0.0.1` if the team decides otherwise |
 | API | `http://127.0.0.1:8000/v1`, `/v1/chat/completions`, `/v1/models` |
 | Served model name | `mango1.5-awq-w4a16` |
 | Checkpoint | `CMKL/MANGO1.5-Qwen3.5-9B-AWQ-W4A16-mtp` |
@@ -26,7 +28,7 @@ Final grader submissions close on 25 October 2026 at 11:00. Validation allows 5 
 | `--speculative-config` | off | **`{"method":"mtp","num_speculative_tokens":1}`** | Approach 4, E3, A04 | Fewer decode steps per token. Loops and repetitive text accept drafts well, which shortens the 8192-token tail |
 | `--enable-prefix-caching --mamba-cache-mode align` | off | **on** | Approach 7, E4, A07 | Agentic episodes (up to 15 turns) and RAG resend shared text on every request. Prefix hits cut prefill joules and TTFT |
 | `--gpu-memory-utilization` | 0.85 | **0.90** | Approach 8, E5, A08b | Headroom for MTP draft state, prefix-cache blocks, and 40960 context together. 0.92 and 0.95 add OOM risk to a combined first run |
-| `--max-num-batched-tokens` | unset | **pinned to the startup-log default** | Approach 6 | The miss type (TTFT or TPOT) is unknown. Pinning protects against nightly drift without changing behavior. 2048 or 4096 becomes a variant once per-request data says which SLO fails |
+| `--max-num-batched-tokens` | unset | **unset; default recorded from the startup log** | Approach 6 | The miss type (TTFT or TPOT) is unknown, and so is this nightly's default. `start.sh` prints the value. 2048 or 4096 becomes a new profile once per-request data says which SLO fails |
 | `--max-num-seqs` | unset | unset | Approach 5 | Peak concurrency is about 40–60 requests. The usual default of 256 does not bind |
 | Power cap | none | **none in R4-full** | Approach 2 | Stays out until SLO-met is at least 90/100 |
 
@@ -55,23 +57,13 @@ The tail is the largest single lever visible in the latest Validation. Three run
 
 No numeric `S` forecast: there is no MANGO acceptance rate, cache-hit rate, or per-request SLO breakdown in the repo yet.
 
-## Files to create in `run4/` (next step, after approval)
+## Files
 
-| File | Purpose |
-|---|---|
-| `config.env` | The R4-full values above in one place, plus `RUN4_TIER` |
-| `start.sh` | One `docker run`, identical to `scripts/start-vllm.sh` plus the combined flags. Refuses to replace an existing container. `DRY_RUN=1` prints the command |
-| `preflight.sh`, `preflight_checks.py`, `profiles/`, `check-external.ps1`, `ENDPOINT_RUNBOOK.md` | **Done.** Endpoint and configuration preflight on the VM, plus the external check from a PC. R4 tiers each get a profile (`r4-full.args`, `r4-no-prefix.args`, …) |
-| `flag-check.sh` | Read-only flag check in the image (`vllm serve --help=all`) before launching a new flag, without GPU access. Adapted from `experiments_thyme/scripts/preflight.sh` |
-| `smoke.py` | Grader-shaped warmup: Thai and a two-turn tool episode with thinking on. Copied from `experiments_thyme/scripts/smoke_grader_shape.py`. The single-turn contract checks are already in `preflight.sh` |
-| `power.sh` | Show, set, and restore one constant cap (250, 200, 175 W). Refuses without `CONFIRM_SLO=at-least-90` |
-| `watch.sh` | `nvidia-smi` power and `/metrics` sampling (running, waiting, preemptions, prefix hits, spec acceptance). Validation only. Adapted from `experiments_thyme/scripts/telemetry.sh` |
-| `README.md` | Run order, tiers, decision rules |
-| `log.md` | One row per run4 submission |
+Listed in [README.md](README.md#files). Tiers are a `start.sh` argument, and each tier's arguments live in `profiles/r4-<tier>.args`, which is also what the preflight checks against.
 
 ### Fallback tiers in `start.sh`
 
-| `RUN4_TIER` | Flags | When to use it |
+| Tier | Flags | When to use it |
 |---|---|---|
 | `full` | All of R4-full | First submission |
 | `no-prefix` | R4-full without prefix caching | Startup rejects prefix caching with MTP on this hybrid model, the log says prefix caching disabled itself, or `full` regresses |
@@ -82,12 +74,12 @@ No numeric `S` forecast: there is no MANGO acceptance rate, cache-hit rate, or p
 
 1. Copy the History row of the 07:56 UTC Validation (E1, context 40960) into `experiments/log.md`. That row is the reference run4 has to beat.
 2. From that run's jsonl, read `finish_reason` and `completion_tokens` for `mxv2_124/134/109_math`, and the TTFT and TPOT of the SLO misses. That decides the token-budget variant.
-3. Run `flag-check.sh`, start R4-full, and save the startup log (MTP accepted, prefix caching enabled, max concurrency at 40960, batched-token default). Then run `PROFILE=r4-full ./run4/preflight.sh` on the VM and `run4\check-external.ps1` from a PC, as described in `run4/ENDPOINT_RUNBOOK.md`.
-4. Submit one Validation of R4-full with `watch.sh` running.
+3. `./run4/flag-check.sh full`, then `REPLACE=1 ./run4/start.sh full`. It waits for `/v1/models`, saves the startup log and prints its key lines (MTP, prefix caching, max concurrency at 40960, batched-token default), then runs the preflight with the same profile. Run `run4\check-external.ps1` from a PC.
+4. `python3 run4/warmup.py`, start `./run4/watch.sh`, then submit one Validation of R4-full.
 5. If SLO-met or `S` is below the best previous row, drop down one tier per submission.
 6. If SLO-met is at least 90/100: set a constant 250 W cap, then 200 W, then 175 W, one Validation each, keeping the best `S`.
 7. If spec acceptance is high and tool calls are clean, try MTP k=2 as one variant.
-8. One confirmation Validation of the best config, run `smoke.py` as warmup before Submit, then one Final. No changes between those two.
+8. One confirmation Validation of the best config, run `warmup.py` before Submit, then one Final. No changes between those two.
 
 ## Open inputs
 

@@ -1,0 +1,15 @@
+# run4 R4-full: E1 plus MTP k=1, hybrid prefix caching, and memory 0.90.
+# start.sh launches exactly these arguments; preflight.sh checks the container against them.
+CMKL/MANGO1.5-Qwen3.5-9B-AWQ-W4A16-mtp
+--host 0.0.0.0
+--port 8000
+--served-model-name mango1.5-awq-w4a16
+--trust-remote-code
+--gpu-memory-utilization 0.90
+--max-model-len 40960
+--enable-auto-tool-choice
+--tool-call-parser qwen3_coder
+--reasoning-parser qwen3
+--speculative-config {"method":"mtp","num_speculative_tokens":1}
+--enable-prefix-caching
+--mamba-cache-mode align
