@@ -1,6 +1,6 @@
-# Approach 4: Batch Size (`max_num_seqs`)
+# Approach 5: Batch Size (`max_num_seqs`)
 
-**Rank:** 4 · **Effort:** low · **Risk:** low
+**Rank:** 5 · **Effort:** low · **Risk:** low
 
 **Goal:** find the largest number of concurrent sequences that still keeps TPOT p95 ≤ 50 ms at the 4 req/s peak, so each weight read is shared by as many requests as possible.
 
@@ -24,7 +24,7 @@ Concepts: [Max Active Sequences](../use_ur_brain/94_Max_Active_Sequences.md) · 
 ## 2. Evidence
 
 - Batching is the main decode throughput lever (roadmap Stage 6; vLLM tuning docs).
-- Approach 1 (quantization) frees ~8–12 GB of VRAM, which is only useful if this limit is raised.
+- Approach 3 (quantization) frees ~8–12 GB of VRAM, which is only useful if this limit is raised.
 
 ---
 

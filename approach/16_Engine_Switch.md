@@ -1,6 +1,6 @@
-# Approach 15: Switching Serving Engine (SGLang, TensorRT-LLM, llama.cpp)
+# Approach 16: Switching Serving Engine (SGLang, TensorRT-LLM, llama.cpp)
 
-**Rank:** 15 · **Effort:** high to very high · **Risk:** high to very high · **Verdict:** no, unless vLLM blocks us
+**Rank:** 16 · **Effort:** high to very high · **Risk:** high to very high · **Verdict:** no, unless vLLM blocks us
 
 **Goal:** replace vLLM with another open-source engine that might have faster kernels or a better scheduler.
 

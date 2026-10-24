@@ -1,6 +1,6 @@
-# Approach 16: Rejected for This Event — Pruning, Fine-Tuning/Distillation, Custom Kernels
+# Approach 17: Rejected for This Event — Pruning, Fine-Tuning/Distillation, Custom Kernels
 
-**Rank:** 16 · **Verdict:** no (record why, for the pitch)
+**Rank:** 17 · **Verdict:** no (record why, for the pitch)
 
 These are allowed by the rules but don't fit a 2-day event. Listing them shows judges we considered and rejected them deliberately.
 

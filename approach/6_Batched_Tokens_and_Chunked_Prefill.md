@@ -1,6 +1,6 @@
-# Approach 5: Batched-Token Budget and Chunked Prefill
+# Approach 6: Batched-Token Budget and Chunked Prefill
 
-**Rank:** 5 · **Effort:** low · **Risk:** low
+**Rank:** 6 · **Effort:** low · **Risk:** low
 
 **Goal:** stop long prompts (RAG, up to 32K tokens) from stalling everyone else's token generation, so TPOT and TTFT both stay within SLO at peak.
 

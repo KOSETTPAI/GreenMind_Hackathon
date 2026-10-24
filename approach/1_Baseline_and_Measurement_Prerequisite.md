@@ -1,6 +1,6 @@
-# Approach 0: Baseline and Measurement (Prerequisite)
+# Approach 1: Baseline and Measurement (Prerequisite)
 
-**Rank:** prerequisite (every other approach depends on it)
+**Rank:** 1 (prerequisite: every other approach depends on it)
 
 **Goal:** a valid, grader-compatible server and a reproduced BF16 baseline, so every later change is compared against real numbers.
 
@@ -32,7 +32,7 @@ vllm serve CMKL/MANGO1.5-Qwen3.5-9B --enable-auto-tool-choice --tool-call-parser
 1. Smoke test: streaming chat, streaming tool call, Thai prompt, long prompt, `usage` present in the stream.
 2. Run the grader health check, then one Validation submission.
 3. Repeat the Validation run at least twice with no changes → noise floor.
-4. Record telemetry: `P_idle`, average `P_active`, window length, busy fraction (Approach 1 §3.2 uses these).
+4. Record telemetry: `P_idle`, average `P_active`, window length, busy fraction (Approach 3 §3.2 uses these).
 
 Concepts: [Smoke Testing](../use_ur_brain/88_Smoke_Testing.md) · [Run-to-Run Variance](../use_ur_brain/91_Run_to_Run_Variance.md) · [Experiment Log](../use_ur_brain/90_Experiment_Log.md)
 

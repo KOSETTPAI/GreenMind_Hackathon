@@ -1,6 +1,6 @@
-# Approach 9: Keep CUDA Graphs On and Warm Up Before the Run
+# Approach 10: Keep CUDA Graphs On and Warm Up Before the Run
 
-**Rank:** 9 · **Effort:** very low · **Risk:** low
+**Rank:** 10 · **Effort:** very low · **Risk:** low
 
 **Goal:** make sure small decode steps aren't slowed by kernel-launch overhead, and that the first graded requests don't pay one-time compile costs.
 

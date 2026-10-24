@@ -1,6 +1,6 @@
-# Approach 10: Fixed GPU Clock Lock
+# Approach 11: Fixed GPU Clock Lock
 
-**Rank:** 10 · **Effort:** very low · **Risk:** medium · **Verdict:** maybe, after Approach 2
+**Rank:** 11 · **Effort:** very low · **Risk:** medium · **Verdict:** maybe, after Approach 2
 
 **Goal:** fix the GPU graphics clock at an efficient value as an alternative (or addition) to a power cap.
 

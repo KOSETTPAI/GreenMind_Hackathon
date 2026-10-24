@@ -1,6 +1,6 @@
-# Approach 8: Mamba / DeltaNet State Cache in BF16
+# Approach 9: Mamba / DeltaNet State Cache in BF16
 
-**Rank:** 8 · **Effort:** very low · **Risk:** low–medium
+**Rank:** 9 · **Effort:** very low · **Risk:** low–medium
 
 **Goal:** store each sequence's recurrent state in BF16 instead of FP32, to fit more sequences and improve prefix-cache reuse.
 
@@ -13,7 +13,7 @@
 | Component | Mechanism | Expected direction |
 |---|---|---|
 | SLO-met / `s_T` | more sequences fit in memory | ↑ |
-| Prefix-cache hit rate (Approach 6) | smaller blocks → finer reuse | ↑ |
+| Prefix-cache hit rate (Approach 7) | smaller blocks → finer reuse | ↑ |
 | `A` | lower-precision state may drift on long context | ↓ risk |
 
 Concepts: [Recurrent State](../use_ur_brain/79_Recurrent_State.md) · [Hybrid Cache and Kernels](../use_ur_brain/86_Hybrid_Cache_and_Architecture_Specific_Kernels.md) · [BF16](../use_ur_brain/46_BF16.md)
@@ -36,7 +36,7 @@ vllm serve <model> --mamba-ssm-cache-dtype bfloat16 --enable-auto-tool-choice --
 
 1. Check the startup log for the state dtype and the new cache size.
 2. Run Validation; compare long-context and RAG accuracy against FP32 state.
-3. If combined with Approach 6, compare cache-hit rate.
+3. If combined with Approach 7, compare cache-hit rate.
 
 ---
 

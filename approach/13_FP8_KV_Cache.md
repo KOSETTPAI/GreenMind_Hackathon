@@ -1,6 +1,6 @@
-# Approach 12: FP8 KV Cache
+# Approach 13: FP8 KV Cache
 
-**Rank:** 12 · **Effort:** low · **Risk:** medium · **Verdict:** probably not
+**Rank:** 13 · **Effort:** low · **Risk:** medium · **Verdict:** probably not
 
 **Goal:** store the attention layers' KV cache in 8 bits to fit more sequences.
 
@@ -15,7 +15,7 @@ Concepts: [KV Cache](../use_ur_brain/77_KV_Cache.md) · [FP8](../use_ur_brain/48
 
 ## 1. Proposed steps (untested — run on the VM to confirm)
 
-Source: vLLM `--kv-cache-dtype` flag. Only try after Approaches 1–6 are settled, and never in the same run as a quantization change (see Approach 1 §5).
+Source: vLLM `--kv-cache-dtype` flag. Only try after Approaches 2–7 are settled, and never in the same run as a quantization change (see Approach 3 §5).
 
 ```bash
 vllm serve <model> --kv-cache-dtype fp8 --enable-auto-tool-choice --tool-call-parser qwen3_coder

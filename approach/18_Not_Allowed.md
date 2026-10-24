@@ -1,4 +1,4 @@
-# Approach 17: Not Allowed — Never Do These
+# Approach 18: Not Allowed — Never Do These
 
 **Verdict:** never. These can get the team disqualified; organizers may rerun submissions and inspect configurations.
 

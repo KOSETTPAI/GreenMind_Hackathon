@@ -1,6 +1,6 @@
-# Approach 6: Prefix Caching (Hybrid Mode)
+# Approach 7: Prefix Caching (Hybrid Mode)
 
-**Rank:** 6 · **Effort:** low · **Risk:** medium
+**Rank:** 7 · **Effort:** low · **Risk:** medium
 
 **Goal:** skip re-reading shared prompt prefixes, mainly in multi-turn tool-calling and RAG requests, to cut prefill work, TTFT, and energy.
 
@@ -52,7 +52,7 @@ vllm serve <model> --enable-prefix-caching --mamba-cache-mode align --enable-aut
 1. Start the server and read the startup log for the prefix-caching status.
 2. Send a 3-turn tool-calling conversation; check the cache-hit metric rises.
 3. Run Validation; compare TTFT for the agentic and RAG classes and total energy.
-4. Optional follow-up: Approach 8 (BF16 Mamba state) may raise the hit rate.
+4. Optional follow-up: Approach 9 (BF16 Mamba state) may raise the hit rate.
 
 ---
 
@@ -61,8 +61,8 @@ vllm serve <model> --enable-prefix-caching --mamba-cache-mode align --enable-aut
 | Risk | Signal | Mitigation |
 |---|---|---|
 | Silently disabled for this architecture | startup log | skip |
-| Low hit rate (block size too large) | cache-hit metric | try Approach 8; otherwise drop |
-| Cache overhead uses memory → fewer sequences | cache size in log | re-tune Approach 4 |
+| Low hit rate (block size too large) | cache-hit metric | try Approach 9; otherwise drop |
+| Cache overhead uses memory → fewer sequences | cache size in log | re-tune Approach 5 |
 | Wrong outputs from state mismatch | accuracy, smoke tests | hard fail; disable |
 
 ---

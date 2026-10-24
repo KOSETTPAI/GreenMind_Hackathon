@@ -1,6 +1,6 @@
-# Approach 11: API Server and CPU Worker Capacity
+# Approach 12: API Server and CPU Worker Capacity
 
-**Rank:** 11 · **Effort:** very low · **Risk:** low · **Verdict:** only if CPU-bound
+**Rank:** 12 · **Effort:** very low · **Risk:** low · **Verdict:** only if CPU-bound
 
 **Goal:** make sure tokenization, streaming, and scheduling on the CPU aren't leaving the GPU idle.
 

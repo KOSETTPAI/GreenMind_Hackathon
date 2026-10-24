@@ -1,6 +1,6 @@
-# Approach 13: Scheduling Policy
+# Approach 14: Scheduling Policy
 
-**Rank:** 13 · **Effort:** low · **Risk:** low · **Verdict:** probably not
+**Rank:** 14 · **Effort:** low · **Risk:** low · **Verdict:** probably not
 
 **Goal:** change the order in which queued requests are served so more meet their TTFT SLO.
 
@@ -14,8 +14,8 @@ Concepts: [Scheduling Policy](../use_ur_brain/98_Scheduling_Policy.md) · [Sched
 
 ## 1. Proposed steps (untested — run on the VM to confirm)
 
-None recommended. Keep the default first-come-first-served policy unless profiling shows long prompts blocking many short ones at peak; in that case tune chunked prefill first (Approach 5).
+None recommended. Keep the default first-come-first-served policy unless profiling shows long prompts blocking many short ones at peak; in that case tune chunked prefill first (Approach 6).
 
 ## 2. Abandon criteria
 
-Already abandoned unless Approach 5 fails to fix TTFT misses at peak.
+Already abandoned unless Approach 6 fails to fix TTFT misses at peak.

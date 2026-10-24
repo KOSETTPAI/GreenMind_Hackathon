@@ -1,6 +1,6 @@
-# Approach 3: MTP Speculative Decoding
+# Approach 4: MTP Speculative Decoding
 
-**Rank:** 3 · **Effort:** low · **Risk:** medium
+**Rank:** 4 · **Effort:** low · **Risk:** medium
 
 **Goal:** generate more than one token per full model step using the checkpoint's built-in multi-token-prediction (MTP) head, cutting decode steps, energy, and TPOT.
 
@@ -46,7 +46,7 @@ Concepts: [Speculative Decoding](../use_ur_brain/111_Speculative_Decoding.md) ·
 
 ## 4. Proposed steps (untested — run on the VM to confirm)
 
-Source: flag and method name from the vLLM docs above. Apply **after** Approach 1 (quantized model) is adopted, so only one thing changes.
+Source: flag and method name from the vLLM docs above. Apply **after** Approach 3 (quantized model) is adopted, so only one thing changes.
 
 ```bash
 vllm serve CMKL/MANGO1.5-Qwen3.5-9B-AWQ-W4A16-mtp --speculative-config '{"method":"mtp","num_speculative_tokens":1}' --enable-auto-tool-choice --tool-call-parser qwen3_coder
@@ -55,7 +55,7 @@ vllm serve CMKL/MANGO1.5-Qwen3.5-9B-AWQ-W4A16-mtp --speculative-config '{"method
 1. k = 1 → Validation run.
 2. Then k = 2, then k = 3, one run each.
 3. Record acceptance rate / mean acceptance length from the metrics endpoint.
-4. Re-tune `--max-num-seqs` (Approach 4) with the winner; spec decoding uses extra memory per sequence.
+4. Re-tune `--max-num-seqs` (Approach 5) with the winner; spec decoding uses extra memory per sequence.
 
 ---
 

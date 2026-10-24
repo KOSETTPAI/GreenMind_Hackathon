@@ -1,4 +1,4 @@
-# Approach 1: Weight-Only Quantization with an Accuracy Guardrail
+# Approach 3: Weight-Only Quantization with an Accuracy Guardrail
 
 **Goal:** raise energy efficiency η (SLO-met requests per joule) toward the 3× full-marks point, while also helping throughput and latency, without letting macro-accuracy retention fall below the cutoff.
 

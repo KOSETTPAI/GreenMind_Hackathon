@@ -1,6 +1,6 @@
 # Approach 2: Fixed GPU Power Cap
 
-**Rank:** 1 (best value for effort) · **Effort:** very low · **Risk:** low–medium
+**Rank:** 2 (best value for effort) · **Effort:** very low · **Risk:** low–medium
 
 **Goal:** lower GPU energy over the whole window by capping power draw, while keeping TPOT ≤ 50 ms and the SLO-met count unchanged.
 
@@ -71,7 +71,7 @@ sudo nvidia-smi -pl 200
 | Risk | Signal | Mitigation |
 |---|---|---|
 | TPOT p95 > 50 ms at peak | latency report | raise cap one step |
-| TTFT misses on long RAG / 32K prompts | TTFT p95 by class | raise cap; tune chunked prefill (Approach 5) |
+| TTFT misses on long RAG / 32K prompts | TTFT p95 by class | raise cap; tune chunked prefill (Approach 6) |
 | Joules go **up** (too slow) | E (kJ) rises vs previous cap | past the U-curve minimum; go back one step |
 | Cap lost after reboot | check `nvidia-smi` before each submission | put the cap in the startup script |
 

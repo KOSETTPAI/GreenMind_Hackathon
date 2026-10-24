@@ -1,6 +1,6 @@
-# Approach 7: GPU Memory Allocation and `max_model_len`
+# Approach 8: GPU Memory Allocation and `max_model_len`
 
-**Rank:** 7 · **Effort:** very low · **Risk:** low
+**Rank:** 8 · **Effort:** very low · **Risk:** low
 
 **Goal:** give vLLM as much GPU memory for cache as is safe, and reserve only the context length the test actually needs.
 
