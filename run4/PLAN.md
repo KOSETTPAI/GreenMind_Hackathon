@@ -2,7 +2,7 @@
 
 Implemented. How to run it: [README.md](README.md). This file keeps the reasoning.
 
-One launch that stacks the approaches with the best expected score, served on the same endpoint as the graded E1 container. Nothing in `scripts/`, `experiments/`, or `experiments_thyme/` changes.
+One launch that stacks the approaches with the best expected score, launched the same way as `scripts/start-vllm.sh`. Nothing in `scripts/`, `experiments/`, or `experiments_thyme/` changes.
 
 Final grader submissions close on 25 October 2026 at 11:00. Validation allows 5 finished submissions per hour, Final allows 2. The one-flag ladder in `experiments/` needs about seven Validations before Final. run4 submits the combined server first and keeps a short fallback ladder for a regression.
 
@@ -11,7 +11,7 @@ Final grader submissions close on 25 October 2026 at 11:00. Validation allows 5 
 | Item | Value |
 |---|---|
 | Container | `mango-vllm`, `--restart unless-stopped`, `--gpus all`, `--ipc=host` |
-| Publish | `0.0.0.0:8000:8000` by default, matching the graded E1 container (`scripts/start-vllm.sh` publishes `127.0.0.1`). `BIND=127.0.0.1` if the team decides otherwise |
+| Publish | `127.0.0.1:${PORT}:8000`, the `scripts/start-vllm.sh` method. With `REPLACE=1` the replaced container's bind is kept. `BIND=0.0.0.0` publishes on all interfaces |
 | API | `http://127.0.0.1:8000/v1`, `/v1/chat/completions`, `/v1/models` |
 | Served model name | `mango1.5-awq-w4a16` |
 | Checkpoint | `CMKL/MANGO1.5-Qwen3.5-9B-AWQ-W4A16-mtp` |
@@ -74,7 +74,7 @@ Listed in [README.md](README.md#files). Tiers are a `start.sh` argument, and eac
 
 1. Copy the History row of the 07:56 UTC Validation (E1, context 40960) into `experiments/log.md`. That row is the reference run4 has to beat.
 2. From that run's jsonl, read `finish_reason` and `completion_tokens` for `mxv2_124/134/109_math`, and the TTFT and TPOT of the SLO misses. That decides the token-budget variant.
-3. `./run4/flag-check.sh full`, then `REPLACE=1 ./run4/start.sh full`. It waits for `/v1/models`, saves the startup log and prints its key lines (MTP, prefix caching, max concurrency at 40960, batched-token default), then runs the preflight with the same profile. Run `run4\check-external.ps1` from a PC.
+3. `./run4/flag-check.sh full`, then `REPLACE=1 ./run4/start.sh`. It waits for `/v1/models`, saves the startup log and prints its key lines (MTP, prefix caching, max concurrency at 40960, batched-token default), then runs the preflight with the same profile. Run `run4\check-external.ps1` from a PC.
 4. `python3 run4/warmup.py`, start `./run4/watch.sh`, then submit one Validation of R4-full.
 5. If SLO-met or `S` is below the best previous row, drop down one tier per submission.
 6. If SLO-met is at least 90/100: set a constant 250 W cap, then 200 W, then 175 W, one Validation each, keeping the best `S`.

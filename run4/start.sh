@@ -1,18 +1,31 @@
 #!/usr/bin/env bash
-# run4: launch one tier of the combined server, wait until it serves, then run
-# the preflight against the same profile. Exit 0 only when the preflight passes.
+# run4 launcher. Same method as scripts/start-vllm.sh (same docker run, same
+# environment variables, publish 127.0.0.1:${PORT}:8000), with the vLLM
+# arguments taken from a run4 profile. Waits until the server answers, then
+# runs the preflight against the same profile. Exit 0 only when it passes.
 #
-#   ./run4/start.sh full            # R4-full: E1 + MTP k=1 + prefix caching + memory 0.90
+#   ./run4/start.sh                 # R4-full (default): E1 + MTP k=1 + prefix caching + memory 0.90
 #   ./run4/start.sh no-prefix       # fallback: drop prefix caching
 #   ./run4/start.sh no-mtp          # fallback: drop MTP
 #   ./run4/start.sh safe            # fallback: the measured E1 server
 #   CONFIRM_K2=1 ./run4/start.sh full-k2
 #
-# Environment:
-#   REPLACE=1        remove an existing mango-vllm first (its inspect and logs are saved)
+# Like scripts/start-vllm.sh, it refuses to replace an existing container:
+#   docker rm -f mango-vllm && ./run4/start.sh
+# or let it save the old container's inspect and logs first:
+#   REPLACE=1 ./run4/start.sh
+#
+# Environment (same names as scripts/start-vllm.sh):
+#   CONTAINER_NAME   default mango-vllm
+#   PORT             host port, default 8000
+#   VLLM_IMAGE       default vllm/vllm-openai:nightly, or vllm/vllm-openai@sha256:<digest>
+#   BIND             host address, default 127.0.0.1 as in scripts/start-vllm.sh.
+#                    With REPLACE=1 and BIND unset, the replaced container's bind is kept.
+#   MODEL_ID, SERVED_MODEL_NAME, GPU_MEMORY_UTILIZATION, MAX_MODEL_LEN
+#                    come from the profile. If exported, they must match it.
+# Other:
+#   RUN4_TIER        tier when no argument is given (default full)
 #   DRY_RUN=1        print the docker command and exit
-#   BIND=0.0.0.0     host address for port 8000 (127.0.0.1 for loopback only)
-#   VLLM_IMAGE=...   vllm/vllm-openai:nightly or vllm/vllm-openai@sha256:<digest>
 #   WAIT_SECONDS=900 how long to wait for /v1/models
 #   SKIP_PREFLIGHT=1 launch only (not recommended)
 #
@@ -23,13 +36,13 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$HERE/.." && pwd)"
 CHECKS="$HERE/preflight_checks.py"
 
-TIER="${1:-}"
-CONTAINER="mango-vllm"
-BIND="${BIND:-0.0.0.0}"
+TIER="${1:-${RUN4_TIER:-full}}"
+CONTAINER="${CONTAINER_NAME:-mango-vllm}"
+PORT="${PORT:-8000}"
 IMAGE="${VLLM_IMAGE:-vllm/vllm-openai:nightly}"
 WAIT_SECONDS="${WAIT_SECONDS:-900}"
 RUNS_DIR="${RUNS_DIR:-$HOME/greenmind-runs}"
-BASE_URL="http://127.0.0.1:8000/v1"
+BASE_URL="http://127.0.0.1:${PORT}/v1"
 
 die() {
   echo "[ERROR] $*" >&2
@@ -45,13 +58,10 @@ case "$TIER" in
   no-prefix) PROFILE_FILE="$HERE/profiles/r4-no-prefix.args" ;;
   no-mtp) PROFILE_FILE="$HERE/profiles/r4-no-mtp.args" ;;
   safe) PROFILE_FILE="$HERE/profiles/e1.args" ;;
-  *) die "Usage: $0 full|no-prefix|no-mtp|safe|full-k2" ;;
+  *) die "Unknown tier '$TIER'. Run with no argument for R4-full, or one of: full no-prefix no-mtp safe full-k2" ;;
 esac
 
-case "$BIND" in
-  0.0.0.0|127.0.0.1) ;;
-  *) die "BIND must be 0.0.0.0 or 127.0.0.1." ;;
-esac
+[[ "$PORT" =~ ^[0-9]+$ ]] || die "PORT must be a number."
 if [[ "$IMAGE" != "vllm/vllm-openai:nightly" && ! "$IMAGE" =~ ^vllm/vllm-openai@sha256:[0-9a-f]{64}$ ]]; then
   die "VLLM_IMAGE must be vllm/vllm-openai:nightly or vllm/vllm-openai@sha256:<digest>."
 fi
@@ -64,23 +74,72 @@ python3 "$CHECKS" launch-args "$PROFILE_FILE" > "$ARGS_FILE" \
 mapfile -d '' VLLM_ARGS < "$ARGS_FILE"
 (( ${#VLLM_ARGS[@]} > 0 )) || die "Profile produced no arguments: $PROFILE_FILE"
 
+PROFILE_MODEL="$(python3 "$CHECKS" profile-value "$PROFILE_FILE" model)"
+PROFILE_SERVED="$(python3 "$CHECKS" profile-value "$PROFILE_FILE" --served-model-name)"
+PROFILE_MEM="$(python3 "$CHECKS" profile-value "$PROFILE_FILE" --gpu-memory-utilization || echo '')"
+PROFILE_LEN="$(python3 "$CHECKS" profile-value "$PROFILE_FILE" --max-model-len)"
+
+# scripts/start-vllm.sh variables: a leftover export must not disagree with the profile.
+if [[ -n "${MODEL_ID:-}" && "$MODEL_ID" != "$PROFILE_MODEL" && "$MODEL_ID" != "$PROFILE_SERVED" ]]; then
+  die "MODEL_ID=$MODEL_ID differs from the profile ($PROFILE_MODEL). Unset it."
+fi
+if [[ -n "${SERVED_MODEL_NAME:-}" && "$SERVED_MODEL_NAME" != "$PROFILE_SERVED" ]]; then
+  die "SERVED_MODEL_NAME=$SERVED_MODEL_NAME differs from the profile ($PROFILE_SERVED). Unset it."
+fi
+if [[ -n "${GPU_MEMORY_UTILIZATION:-}" ]] && ! awk -v a="$GPU_MEMORY_UTILIZATION" -v b="$PROFILE_MEM" 'BEGIN { exit !(b != "" && a + 0 == b + 0) }'; then
+  die "GPU_MEMORY_UTILIZATION=$GPU_MEMORY_UTILIZATION differs from tier $TIER (${PROFILE_MEM:-unset}). Unset it; the profile sets it."
+fi
+if [[ -n "${MAX_MODEL_LEN:-}" && "$MAX_MODEL_LEN" != "$PROFILE_LEN" ]]; then
+  die "MAX_MODEL_LEN=$MAX_MODEL_LEN differs from tier $TIER ($PROFILE_LEN). Unset it; the profile sets it."
+fi
+
+# Existing container and bind. Read before printing the command so the dry run shows the real bind.
+EXISTING=0
+INHERITED_BIND=""
+if command -v docker >/dev/null 2>&1 && docker container inspect "$CONTAINER" >/dev/null 2>&1; then
+  EXISTING=1
+  first="$(docker port "$CONTAINER" 8000/tcp 2>/dev/null | head -1 || true)"
+  if [[ -n "$first" ]]; then
+    INHERITED_BIND="${first%:*}"
+    INHERITED_BIND="${INHERITED_BIND#[}"
+    INHERITED_BIND="${INHERITED_BIND%]}"
+    [[ "$INHERITED_BIND" == "::" ]] && INHERITED_BIND="0.0.0.0"
+  fi
+fi
+if [[ -n "${BIND:-}" ]]; then
+  BIND_SOURCE="BIND environment variable"
+elif (( EXISTING )) && [[ -n "$INHERITED_BIND" ]]; then
+  BIND="$INHERITED_BIND"
+  BIND_SOURCE="kept from the existing $CONTAINER container"
+else
+  BIND="127.0.0.1"
+  BIND_SOURCE="scripts/start-vllm.sh default"
+fi
+case "$BIND" in
+  0.0.0.0|127.0.0.1) ;;
+  *) die "Bind '$BIND' ($BIND_SOURCE) must be 0.0.0.0 or 127.0.0.1." ;;
+esac
+
 DOCKER_CMD=(
   docker run -d
   --name "$CONTAINER"
   --restart unless-stopped
   --gpus all
   --ipc=host
-  -p "${BIND}:8000:8000"
+  -p "${BIND}:${PORT}:8000"
   -v "$HOME/.cache/huggingface:/root/.cache/huggingface"
   --label "greenmind.run=run4"
   --label "greenmind.tier=$TIER"
+  --label "greenmind.bind=$BIND"
   "$IMAGE"
   "${VLLM_ARGS[@]}"
 )
 
 echo "run4 tier:  $TIER"
 echo "Profile:    $PROFILE_FILE"
-echo "Bind:       ${BIND}:8000 -> container 8000"
+echo "Container:  $CONTAINER"
+echo "Bind:       ${BIND}:${PORT} -> container 8000 ($BIND_SOURCE)"
+echo "Endpoint:   $BASE_URL"
 echo "Image:      $IMAGE"
 echo "Command:"
 printf '  %q' "${DOCKER_CMD[@]}"
@@ -95,11 +154,11 @@ command -v docker >/dev/null 2>&1 || die "docker is not on PATH."
 command -v curl >/dev/null 2>&1 || die "curl is not on PATH."
 docker info >/dev/null 2>&1 || die "Cannot talk to the Docker daemon."
 
-EXISTING=0
-if docker container inspect "$CONTAINER" >/dev/null 2>&1; then
-  [[ "${REPLACE:-}" == "1" ]] \
-    || die "Container '$CONTAINER' already exists. Re-run with REPLACE=1 to save its record and remove it."
-  EXISTING=1
+if (( EXISTING )) && [[ "${REPLACE:-}" != "1" ]]; then
+  echo "Container '$CONTAINER' already exists." >&2
+  echo "Inspect it with: docker logs --tail 100 $CONTAINER" >&2
+  echo "Remove it deliberately (docker rm -f $CONTAINER), or re-run with REPLACE=1 to save its record first." >&2
+  exit 1
 fi
 
 STAMP="$(date +%Y%m%d-%H%M%S)"
@@ -116,8 +175,8 @@ if (( EXISTING )); then
   docker rm -f "$CONTAINER" >/dev/null
 fi
 
-others="$(docker ps --format '{{.Names}}|{{.Ports}}' | awk -F'|' 'index($2, ":8000->") { print $1 }')"
-[[ -z "$others" ]] || die "Another container publishes host port 8000: $others. Stop it first."
+others="$(docker ps --format '{{.Names}}|{{.Ports}}' | awk -F'|' -v p=":${PORT}->" 'index($2, p) { print $1 }')"
+[[ -z "$others" ]] || die "Another container publishes host port $PORT: $others. Stop it first."
 if command -v nvidia-smi >/dev/null 2>&1; then
   apps=""
   for _ in $(seq 1 15); do
@@ -136,6 +195,7 @@ ln -sfn "$RUN_DIR" "$RUNS_DIR/latest"
   echo "tier: $TIER"
   echo "started: $(date -Is)"
   echo "host: $(hostname)"
+  echo "bind: ${BIND}:${PORT} ($BIND_SOURCE)"
   echo "git: $(git -C "$REPO_DIR" rev-parse --short HEAD 2>/dev/null || echo unknown)$( [[ -n "$(git -C "$REPO_DIR" status --porcelain 2>/dev/null)" ]] && echo ' (dirty)')"
   echo "image: $IMAGE"
   echo "image_id: $(docker inspect -f '{{.Image}}' "$CONTAINER" 2>/dev/null || echo unknown)"
@@ -188,20 +248,20 @@ fi
 echo
 echo "[PASS] $BASE_URL/models answered."
 if [[ "${SKIP_PREFLIGHT:-}" == "1" ]]; then
-  echo "SKIP_PREFLIGHT=1: run PROFILE=$PROFILE_FILE EXPECTED_BIND=$BIND ./run4/preflight.sh before any benchmark."
+  echo "SKIP_PREFLIGHT=1: run PROFILE=$PROFILE_FILE ./run4/preflight.sh before any benchmark."
   exit 0
 fi
 
 echo "Running the preflight with the same profile ..."
 pf_rc=0
-PROFILE="$PROFILE_FILE" EXPECTED_BIND="$BIND" PREFLIGHT_LOG_DIR="$RUN_DIR/preflight" \
+PROFILE="$PROFILE_FILE" EXPECTED_BIND="$BIND" CONTAINER="$CONTAINER" HOST_PORT="$PORT" \
+  BASE_URL="$BASE_URL" MODEL_ID="$PROFILE_SERVED" PREFLIGHT_LOG_DIR="$RUN_DIR/preflight" \
   "$HERE/preflight.sh" || pf_rc=$?
 
 echo
 if (( pf_rc == 0 )); then
   echo "READY: tier $TIER passed the preflight. Record: $RUN_DIR"
   echo "Before Submit: python3 run4/warmup.py, then ./run4/watch.sh in a second shell (Validation only)."
-  echo "From your PC: powershell -ExecutionPolicy Bypass -File run4\\check-external.ps1"
   exit 0
 fi
 echo "NOT READY: preflight failed for tier $TIER. Do not benchmark."

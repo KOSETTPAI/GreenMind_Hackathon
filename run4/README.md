@@ -8,19 +8,23 @@ Nothing here has run on the VM yet. Each step below says what proves it worked.
 
 | Tier | Profile | Change from E1 | Use |
 |---|---|---|---|
-| `full` | `profiles/r4-full.args` | MTP k=1, prefix caching with `--mamba-cache-mode align`, memory 0.90 | First submission |
+| `full` (default) | `profiles/r4-full.args` | MTP k=1, prefix caching with `--mamba-cache-mode align`, memory 0.90 | First submission |
 | `no-prefix` | `profiles/r4-no-prefix.args` | MTP k=1, memory 0.90 | `full` won't start, the log says prefix caching disabled itself, or `full` regresses |
 | `no-mtp` | `profiles/r4-no-mtp.args` | Prefix caching, memory 0.90 | MTP won't start, breaks tool calls, or `no-prefix` regresses |
 | `safe` | `profiles/e1.args` | none | Both levers failed. The measured E1 server |
 | `full-k2` | `profiles/r4-full-k2.args` | `full` with two draft tokens | Only after `full` beats E1. Needs `CONFIRM_K2=1` |
 
-Every tier keeps the endpoint: container `mango-vllm`, host port 8000, served name `mango1.5-awq-w4a16`, checkpoint `CMKL/MANGO1.5-Qwen3.5-9B-AWQ-W4A16-mtp`, context 40960, `--trust-remote-code`, `--enable-auto-tool-choice --tool-call-parser qwen3_coder --reasoning-parser qwen3`. `start.sh` refuses a profile that breaks any of those.
+Pick a tier with an argument (`./run4/start.sh no-prefix`) or `RUN4_TIER=no-prefix`. Every tier keeps the endpoint: container `mango-vllm`, host port 8000, served name `mango1.5-awq-w4a16`, checkpoint `CMKL/MANGO1.5-Qwen3.5-9B-AWQ-W4A16-mtp`, context 40960, `--trust-remote-code`, `--enable-auto-tool-choice --tool-call-parser qwen3_coder --reasoning-parser qwen3`. `start.sh` refuses a profile that breaks any of those.
 
 The profile is the single source of truth. `start.sh` launches exactly its arguments, and `preflight.sh` fails if the running container has one more, one fewer, or a different value.
 
-### Bind
+### Same method as `scripts/start-vllm.sh`
 
-`start.sh` publishes `0.0.0.0:8000` by default, matching the E1 container the grader scored. `scripts/start-vllm.sh` publishes `127.0.0.1:8000`. Use `BIND=127.0.0.1` only if the team decides the grader reaches the VM another way. The preflight then needs `EXPECTED_BIND=127.0.0.1` too, and `start.sh` passes it automatically. Restrict inbound port 8000 to trusted addresses: the API has no authentication.
+`start.sh` runs the same `docker run` as `scripts/start-vllm.sh`: container `mango-vllm`, `--restart unless-stopped --gpus all --ipc=host`, the Hugging Face cache mount, and `-p 127.0.0.1:${PORT}:8000`. It reads the same variables (`CONTAINER_NAME`, `PORT`, `VLLM_IMAGE`). It also refuses to replace an existing container. Only the vLLM arguments differ, and they come from the tier's profile.
+
+`MODEL_ID`, `SERVED_MODEL_NAME`, `GPU_MEMORY_UTILIZATION`, and `MAX_MODEL_LEN` come from the profile. A leftover export of one of them that disagrees with the profile stops the launch, so an old `MAX_MODEL_LEN=40960` from E1 is fine, but `0.85` on a 0.90 tier is not.
+
+**Bind.** The default is `127.0.0.1`, as in `scripts/start-vllm.sh`. With `REPLACE=1` and no `BIND` set, `start.sh` keeps the bind of the container it replaces, so a working endpoint keeps working. `BIND=0.0.0.0` publishes on all interfaces. The chosen bind is stored in a container label, and the preflight checks against it.
 
 ## Run order on the VM
 
@@ -31,21 +35,19 @@ chmod +x run4/*.sh
 # 1. Flags exist in the image (no GPU, the current server keeps running)
 ./run4/flag-check.sh full
 
-# 2. Replace E1 with R4-full; waits for /v1/models, then runs the preflight
-REPLACE=1 ./run4/start.sh full
+# 2. Replace E1 with R4-full (no argument = full); keeps E1's bind, waits, runs the preflight
+REPLACE=1 ./run4/start.sh
+#    or, exactly like scripts/start-vllm.sh:
+#    docker rm -f mango-vllm && ./run4/start.sh
 
 # 3. Right before Submit
 python3 run4/warmup.py
 ./run4/watch.sh            # second shell, Validation only; Ctrl-C when the grader finishes
 ```
 
-From your PC, after step 2:
+Submit only when `start.sh` printed `READY` and `warmup.py` printed `WARMUP PASSED`. If the bind is `0.0.0.0`, also run `run4\check-external.ps1` from your PC.
 
-```powershell
-powershell -ExecutionPolicy Bypass -File run4\check-external.ps1
-```
-
-Submit only when `start.sh` printed `READY`, `warmup.py` printed `WARMUP PASSED`, and the external check passed.
+A later standalone `./run4/preflight.sh` picks the tier and bind from the container's labels, so it needs no variables.
 
 After the grader finishes:
 

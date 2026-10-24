@@ -7,23 +7,50 @@
 #
 # Exit 0 = ready, 1 = do not benchmark, 2 = usage error.
 #
-#   ./run4/preflight.sh                  # E1 container (max-model-len 40960)
+#   ./run4/preflight.sh                  # profile and bind from run4/start.sh's container labels;
+#                                        # otherwise E1 (max-model-len 40960) on 127.0.0.1
 #   PROFILE=v0 ./run4/preflight.sh       # scripts/start-vllm.sh defaults (32768)
 #   PROFILE=path/to/x.args ./run4/preflight.sh
+#   EXPECTED_BIND=0.0.0.0 ./run4/preflight.sh
 set -Eeuo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$HERE/.." && pwd)"
 CHECKS="$HERE/preflight_checks.py"
 
-CONTAINER="${CONTAINER:-mango-vllm}"
+CONTAINER="${CONTAINER:-${CONTAINER_NAME:-mango-vllm}}"
 MODEL_ID="${MODEL_ID:-mango1.5-awq-w4a16}"
-BASE_URL="${BASE_URL:-http://127.0.0.1:8000/v1}"
-HOST_PORT="${HOST_PORT:-8000}"
-EXPECTED_BIND="${EXPECTED_BIND:-0.0.0.0}"
-PROFILE="${PROFILE:-e1}"
+HOST_PORT="${HOST_PORT:-${PORT:-8000}}"
+BASE_URL="${BASE_URL:-http://127.0.0.1:${HOST_PORT}/v1}"
 EXPECTED_MAX_LEN="${EXPECTED_MAX_LEN:-}"
 PREFLIGHT_LOG_DIR="${PREFLIGHT_LOG_DIR:-$HOME/greenmind-preflight}"
+
+# Labels written by run4/start.sh record what the container was launched as.
+container_label() {
+  command -v docker >/dev/null 2>&1 || return 0
+  docker inspect -f "{{index .Config.Labels \"$1\"}}" "$CONTAINER" 2>/dev/null | grep -v '^<no value>$' || true
+}
+LABEL_TIER="$(container_label greenmind.tier)"
+LABEL_BIND="$(container_label greenmind.bind)"
+
+if [[ -n "${PROFILE:-}" ]]; then
+  PROFILE_SOURCE="PROFILE environment variable"
+else
+  case "$LABEL_TIER" in
+    full|full-k2|no-prefix|no-mtp) PROFILE="r4-$LABEL_TIER"; PROFILE_SOURCE="container label greenmind.tier=$LABEL_TIER" ;;
+    safe) PROFILE="e1"; PROFILE_SOURCE="container label greenmind.tier=safe" ;;
+    *) PROFILE="e1"; PROFILE_SOURCE="default (no run4 label)" ;;
+  esac
+fi
+if [[ -n "${EXPECTED_BIND:-}" ]]; then
+  BIND_SOURCE="EXPECTED_BIND environment variable"
+elif [[ -n "$LABEL_BIND" ]]; then
+  EXPECTED_BIND="$LABEL_BIND"
+  BIND_SOURCE="container label greenmind.bind"
+else
+  EXPECTED_BIND="127.0.0.1"
+  BIND_SOURCE="scripts/start-vllm.sh default"
+fi
 
 if [[ "$PROFILE" == */* || "$PROFILE" == *.args ]]; then
   PROFILE_FILE="$PROFILE"
@@ -49,6 +76,10 @@ if [[ -n "$EXPECTED_MAX_LEN" && "$EXPECTED_MAX_LEN" != "$PROFILE_MAX_LEN" ]]; th
   usage_error "EXPECTED_MAX_LEN=$EXPECTED_MAX_LEN contradicts profile $PROFILE ($PROFILE_MAX_LEN). Pick the profile for the experiment you launched (v0 = 32768, e1 = 40960) instead of loosening the check."
 fi
 EXPECTED_MAX_LEN="$PROFILE_MAX_LEN"
+if [[ "$MODEL_ID" == "$PROFILE_MODEL" ]]; then
+  # scripts/start-vllm.sh uses MODEL_ID for the checkpoint; the API serves the served name.
+  MODEL_ID="$PROFILE_SERVED"
+fi
 if [[ "$MODEL_ID" != "$PROFILE_SERVED" ]]; then
   usage_error "MODEL_ID=$MODEL_ID differs from the profile's --served-model-name $PROFILE_SERVED."
 fi
@@ -80,8 +111,12 @@ finish() {
   echo
   if (( FAILURES == 0 )); then
     echo "RESULT: PREFLIGHT PASSED ($WARNINGS warning(s))"
-    echo "Local checks passed. External reachability is NOT verified by this script:"
-    echo "run run4/check-external.ps1 from a machine outside the VM."
+    echo "Local checks passed. Reachability from outside the VM is NOT verified by this script."
+    if [[ "$EXPECTED_BIND" == "127.0.0.1" ]]; then
+      echo "The bind is loopback, as in scripts/start-vllm.sh: only clients on this VM reach port $HOST_PORT directly."
+    else
+      echo "Run run4/check-external.ps1 from a machine outside the VM."
+    fi
     return 0
   fi
   echo "RESULT: PREFLIGHT FAILED ($FAILURES check(s)). Do not benchmark."
@@ -106,8 +141,8 @@ main() {
   echo "Container: $CONTAINER"
   echo "Model ID:  $MODEL_ID"
   echo "Endpoint:  $BASE_URL"
-  echo "Profile:   $PROFILE_FILE (max-model-len $EXPECTED_MAX_LEN)"
-  echo "Bind:      expected $EXPECTED_BIND:$HOST_PORT"
+  echo "Profile:   $PROFILE_FILE (max-model-len $EXPECTED_MAX_LEN; $PROFILE_SOURCE)"
+  echo "Bind:      expected $EXPECTED_BIND:$HOST_PORT ($BIND_SOURCE)"
   echo "Records:   $RUN_DIR"
   echo
 

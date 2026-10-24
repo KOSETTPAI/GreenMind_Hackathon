@@ -21,7 +21,7 @@ Verified once: local inference returned `ENDPOINT_OK`, and Docker showed port 80
 
 Not verified by that: reachability from outside the VM, and whether the next container launch has the intended flags.
 
-**Bind.** The running E1 container publishes `0.0.0.0:8000`. `run4/start.sh` does the same by default, and the preflight expects it. `scripts/start-vllm.sh`, `experiments/lib/launch-from-baseline.sh`, and `experiments_thyme/scripts/lib.sh` publish `127.0.0.1:8000`, so a container from those launchers fails the default bind check. That is deliberate: confirm which bind the grader needs before submitting one. `run4/start.sh` with `BIND=127.0.0.1` passes the matching `EXPECTED_BIND` to the preflight.
+**Bind.** `run4/start.sh` uses the `scripts/start-vllm.sh` method: `127.0.0.1:${PORT}:8000` by default. With `REPLACE=1` and no `BIND`, it keeps the bind of the container it replaces. It records the bind in the container label `greenmind.bind`. The preflight expects, in order: `EXPECTED_BIND` if set, that label, then `127.0.0.1`. A container whose actual binding differs from that expectation fails. Docker once reported `0.0.0.0` for the E1 container, so check `docker port mango-vllm` before replacing it.
 
 ## Files
 
@@ -47,18 +47,19 @@ Each run saves `preflight.log`, `inspect.json`, and `container-tail.log` under `
 
 2. Confirm those arguments are the experiment you mean to run. E1 is V0 plus `--max-model-len 40960`. Nothing else is added: no `--max-num-seqs 32` or other tuning flag slipped in.
 
-3. Run the preflight with the profile for that experiment:
+3. Run the preflight. `run4/start.sh` already does this after launch. A container from `run4/start.sh` carries labels, so no variables are needed. For other containers, name the profile and bind:
 
    ```bash
-   ./run4/preflight.sh                 # E1
-   PROFILE=v0 ./run4/preflight.sh      # scripts/start-vllm.sh defaults
+   ./run4/preflight.sh                                   # run4 container, or E1 on 127.0.0.1
+   EXPECTED_BIND=0.0.0.0 ./run4/preflight.sh             # E1 published on all interfaces
+   PROFILE=v0 ./run4/preflight.sh                        # scripts/start-vllm.sh defaults
    ```
 
    `EXPECTED_MAX_LEN` is still accepted, but it must agree with the profile. A different context length means a different profile, not a looser check.
 
 4. If it prints `RESULT: PREFLIGHT FAILED`, stop. Fix the first `[FAIL]`, then rerun the whole script.
 
-5. From your PC, in PowerShell:
+5. If the bind is `0.0.0.0`, check from your PC in PowerShell. A loopback bind cannot answer an outside client, so this check would fail by design:
 
    ```powershell
    powershell -ExecutionPolicy Bypass -File run4\check-external.ps1
